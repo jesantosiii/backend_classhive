@@ -30,20 +30,31 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # For CORS
 ]
 
-# CORS settings for development (change for production)
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
-# For production, use specific domains:
-# CORS_ALLOWED_ORIGINS = [
-#     "https://your-frontend-domain.com",  # Replace with your React app URL
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173'  # Removed trailing slash
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173'
+]
+
+
+
+
+CORS_ALLOW_HEADERS = [
+    'Content-Type',
+    'Authorization',  # If you're using Authorization header (for JWT later)
+]
+
+
 
 ROOT_URLCONF = 'classhive_backend.urls'
 
