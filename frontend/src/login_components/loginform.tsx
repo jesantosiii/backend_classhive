@@ -1,29 +1,80 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { Eye, EyeOff, Facebook } from "lucide-react";
 import ClassHive from "../assets/Logo/ClassHive.png";
 import honey1 from "../assets/Logo/honey 1.png";
 import honey2 from "../assets/Logo/honey 2.png";
 import Input from "../basic_components/InputDefault";
+import { useNavigate } from "react-router-dom";
+
+const config = {
+  TOKEN_STORAGE_KEY: 'authTokens',
+  USER_STORAGE_KEY: 'authUser',
+};
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Use identifier (username/email)
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // State for error messages
+  const [loading, setLoading] = useState(false); // State for loading
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage(""); // Clear error messages
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/accounts/login/", {
+        identifier,
+        password,
+      });
+
+      // Parse tokens and user from the backend response
+      const { tokens, user } = response.data; // Destructure tokens and user
+      const { role } = user; // Get the role (Teacher or Student)
+
+      // Save tokens and user to localStorage
+      localStorage.setItem(config.TOKEN_STORAGE_KEY, JSON.stringify(tokens));
+      localStorage.setItem(config.USER_STORAGE_KEY, JSON.stringify(user));
+
+      alert("Login successful!");
+      console.log(response.data);
+
+      // Navigate based on the user's role
+      if (role === "Student") {
+        navigate("/classroom");
+      } else if (role === "Teacher") {
+        navigate("/WC");
+      } else {
+        setErrorMessage("Invalid role. Please contact support.");
+      }
+    } catch (error) {
+      console.error(error.response?.data);
+      setErrorMessage(
+        error.response?.data?.error || "An error occurred. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    
     <div className="min-h-screen w-full flex bg-[#0a192f]">
       {/* Left side - Login Form */}
       <div className="w-full lg:w-[40%] p-8 lg:p-12 flex flex-col justify-center bg-gradient-to-b from-[#0a192f] to-[#1a3a4a] rounded-br-[40px]">
         <div className="max-w-md w-full mx-auto space-y-8">
           <h1 className="text-4xl font-bold text-white">Login</h1>
-          <form className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
+            {errorMessage && (
+              <div className="text-red-500 text-sm">{errorMessage}</div>
+            )}
             <div className="space-y-2">
               <Input
-                id="username"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="identifier"
+                placeholder="Username or Email"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="pr-52"
               />
             </div>
@@ -59,8 +110,9 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full py-2 px-4 bg-[#4a6c80] hover:bg-[#5d7d91] text-white rounded-md"
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
           <div className="flex items-center justify-center gap-4 mt-6">
