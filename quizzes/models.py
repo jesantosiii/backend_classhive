@@ -10,8 +10,8 @@ class Quiz(models.Model):
     description = models.TextField(null=True, blank=True)
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="quizzes")
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
     timer_duration = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 

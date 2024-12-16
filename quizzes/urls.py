@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
+
 from .views import TeacherQuestionBankView, TeacherQuizListView, QuizDetailView, QuestionListView, AnswerListView
+
 
 urlpatterns = [
     # Quiz creation (POST request)

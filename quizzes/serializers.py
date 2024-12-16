@@ -60,7 +60,7 @@ class StudentResponseSerializer(serializers.ModelSerializer):
         return representation
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
-    student = serializers.StringRelatedField()  # Assumes CustomUser model has __str__ method
+    student = serializers.StringRelatedField()  # Assumes CustomUser model has str method
     quiz = QuizSerializer()  # Nested Quiz Serializer
     status_display = serializers.CharField(source='get_status_display', read_only=True)  # Show human-readable status
     score = serializers.IntegerField()  # Assuming 'score' is an integer field in QuizAttempt model
@@ -69,8 +69,13 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuizAttempt
-
         fields = ['id', 'student', 'quiz', 'start_time', 'end_time', 'status', 'status_display', 'score', 'total_score', 'time_spent']
+
+
+    def get_time_spent(self, obj):
+        # Return time spent if end_time exists, else return 0
+        return obj.time_spent
+
 
     def get_time_spent(self, obj):
         # Return time spent if end_time exists, else return 0
