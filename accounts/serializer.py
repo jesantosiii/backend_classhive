@@ -25,7 +25,7 @@ class UpdatePasswordSerializer(serializers.Serializer):
     confirm_new_password = serializers.CharField(required=True, min_length=8)
 
     def validate(self, data):
-        if data['new_password']  != data['confirm_new_password']:
+        if data['new_password'] != data['confirm_new_password']:
             raise serializers.ValidationError("New passwords do not match.")
         return data
 
