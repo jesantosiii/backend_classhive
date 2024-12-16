@@ -8,13 +8,16 @@ interface ClassCardProps {
   section: string;
   subject: string;
   onOpen?: () => void;
+  class_code: string;
 }
 
-export function ClassCard({ className, section, subject, onOpen }: ClassCardProps) {
-  const navigate = useNavigate(); 
+export function ClassCard({ className, section, subject, class_code, onOpen }: ClassCardProps) {
+  const navigate = useNavigate();
 
   const handleOpenClick = () => {
-    navigate("/teacher/classroomcontent");
+    console.log("Navigating to class with code:", class_code); // Debugging log
+    localStorage.setItem("class_code", class_code); // Store class_code in local storage
+    navigate(`/teacher/classroomcontent/${class_code}`); // Add classCode to the route
     if (onOpen) onOpen();
   };
 
@@ -22,11 +25,7 @@ export function ClassCard({ className, section, subject, onOpen }: ClassCardProp
     <Card className="w-[300px] overflow-hidden bg-white shadow-lg rounded-2xl">
       <div className="h-[160px] w-full relative bg-gradient-to-r from-[#0a192f] to-[#1a3a4a]">
         <div className="absolute inset-0 flex items-center justify-center">
-          <img
-            src={LogoL}
-            alt="Class logo"
-            className="w-[200px] opacity-70"
-          />
+          <img src={LogoL} alt="Class logo" className="w-[200px] opacity-70" />
         </div>
       </div>
       <div className="p-4 space-y-2">

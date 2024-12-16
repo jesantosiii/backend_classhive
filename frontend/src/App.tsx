@@ -6,8 +6,8 @@ import StudentWC from "./studentside_components/Pages/student-wc";
 import StudentDB from "./studentside_components/Pages/student-dashboard";
 import Profile from "./studentside_components/Pages/student-profile";
 import StudentCC from './studentside_components/Pages/student-classroom-content';
-import StudentCW from './studentside_components/Pages/classroom-classwork'
-import StudentPL from './studentside_components/Pages/student-people'
+import StudentCW from './studentside_components/Pages/classroom-classwork';
+import StudentPL from './studentside_components/Pages/student-people';
 
 // Teacher pages
 import ClassroomContent from '@/teacherside_components/Pages/classroom-content';
@@ -28,22 +28,22 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-       
         <Route path="/" element={<Navigate to="/home" />} />
-          <Route path="home" element={<LandingPage/>} />
-          <Route path="dashboard" element={<StudentDB />} />
-          <Route path="classroom" element={<StudentWC />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="classroomcontent" element={<StudentCC />} />
-          <Route path="classroomclasswork" element={<StudentCW />} />
-          <Route path="classroompeople" element={<StudentPL />} />
-          <Route path="login" element={<LoginPage />} /> 
-          <Route path="signup" element={<SignUpPage />} /> 
-          <Route path="verification" element={<Verification />} /> 
+        <Route path="home" element={<LandingPage />} />
+        <Route path="dashboard" element={<StudentDB />} />
+        <Route path="classroom" element={<StudentWC />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="classroomcontent" element={<StudentCC />} />
+        <Route path="classroomclasswork" element={<StudentCW />} />
+        <Route path="classroompeople" element={<StudentPL />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignUpPage />} />
+        <Route path="verification" element={<Verification />} />
 
         {/* Teacher Routes */}
         <Route path="/teacher/*">
-          <Route path="classroomcontent" element={<ClassroomContent />} />
+          {/* Use :classCode for dynamic routing */}
+          <Route path="classroomcontent/:classCode" element={<ClassroomContent />} />
           <Route path="grade-card" element={<ClassroomGradeCard />} />
           <Route path="people" element={<ClassroomPeople />} />
           <Route path="quiz" element={<ClassroomQuiz />} />
