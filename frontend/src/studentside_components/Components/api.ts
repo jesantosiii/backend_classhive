@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getTokens, setTokens, clearTokens } from 'frontend/config.ts';
+import { getTokens, setTokens, clearTokens } from '../../../config';
 
 const BASE_URL = 'http://127.0.0.1:8000/'; // Backend URL
 
