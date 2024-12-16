@@ -26,7 +26,7 @@ import LandingPage from "./Landing_page_components/landing-page";
 import SignUpPage from "./login_components/signupform";
 import LoginPage from "./login_components/loginform";
 import Verification from "./login_components/email-verification";
-
+import Take from "./trial"
 const App: React.FC = () => {
   return (
     <Router>
@@ -43,7 +43,6 @@ const App: React.FC = () => {
           <Route path="signup" element={<SignUpPage />} /> 
           <Route path="verification" element={<Verification />} />
           <Route path="quizzes" element={<StudentQL />} />
-
 
         {/* Teacher Routes */}
         <Route path="/teacher/*">

@@ -30,7 +30,7 @@ class Question(models.Model):
     ]
 
     question_type = models.CharField(max_length=10, choices=QUESTION_TYPES)
-    description = models.TextField(null=True, blank=True)
+    instruction = models.TextField(null=True, blank=True)
     content = models.TextField()  # The content of the question (the prompt)
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     correct_answer = models.TextField(null=True, blank=True)  # Correct answer for identification questions
@@ -92,8 +92,8 @@ class QuizAttempt(models.Model):
 
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
-    start_time = models.DateField(auto_now_add=True)
-    end_time = models.DateField(null=True, blank=True)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=2, choices=Status.choices, default=Status.IN_PROGRESS)
     score = models.IntegerField(default=0)  # Track the score of the student
     total_score = models.IntegerField(default=0)  # Track the total score

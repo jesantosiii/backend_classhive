@@ -9,3 +9,4 @@ urlpatterns = [
     path('classrooms/<int:pk>/', views.ClassroomDetailView.as_view(), name='classroom_detail'),
     path('classrooms/<str:class_code>/people/', ClassroomPeopleView.as_view(), name='classroom-people'),
 ]
+
