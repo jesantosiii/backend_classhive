@@ -1,103 +1,79 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { CompletionModal } from "./completion-modal"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { CompletionModal } from "./completion-modal";
+import axios from 'axios';
+import { useNavigate } from "react-router-dom"; // Assuming Axios is used for API calls
 
 interface Question {
-  id: number
-  question: string
-  type: "multiple" | "truefalse" | "identification" | "multipleCorrect"
-  options: string[]
-  selectedAnswer?: number | string | number[]
-  correctAnswer: string | string[]
+  id: number;
+  question: string;
+  type: "multiple" | "identification";
+  options?: string[]; // Optional for identification questions
+  selectedAnswer?: number | string;
+  correctAnswer: string;
 }
 
 const QuizInterface = () => {
-  const [currentQuestion, setCurrentQuestion] = useState(1)
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: 1,
-      question: "What is Python?",
-      type: "multiple",
-      options: [
-        "Python is a high-level programming language",
-        "Python is a database software",
-        "Python is only used for web development",
-        "Python is a low-level programming language",
-      ],
-      selectedAnswer: undefined,
-      correctAnswer: "Python is a high-level programming language",
-    },
-    {
-      id: 2,
-      question: "Is JavaScript a compiled language?",
-      type: "truefalse",
-      options: ["True", "False"],
-      selectedAnswer: undefined,
-      correctAnswer: "False",
-    },
-    {
-      id: 3,
-      question: "What does HTML stand for?",
-      type: "identification",
-      options: [],
-      selectedAnswer: "",
-      correctAnswer: "Hypertext Markup Language",
-    },
-    {
-      id: 4,
-      question: "Which of the following are valid JavaScript data types? (Select all that apply)",
-      type: "multipleCorrect",
-      options: ["String", "Number", "Boolean", "Array", "Undefined"],
-      selectedAnswer: [],
-      correctAnswer: ["String", "Number", "Boolean", "Undefined"],
-    },
-  ])
-  
+  const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [timeLeft, setTimeLeft] = useState(45 * 60); // 45 minutes in seconds
+  const [isQuizEnded, setIsQuizEnded] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showAnswers, setShowAnswers] = useState(false);
+  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [quizTitle, setQuizTitle] = useState('');
+  const [quizDescription, setQuizDescription] = useState('');
 
-  const [timeLeft, setTimeLeft] = useState(45 * 60) // 45 minutes in seconds
-  const [isQuizEnded, setIsQuizEnded] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [showAnswers, setShowAnswers] = useState(false)
-  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false)
-  const [viewAnswersImmediately, setViewAnswersImmediately] = useState(false)
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (timeLeft > 0 && !isQuizEnded) {
-      const timerId = setTimeout(() => {
-        setTimeLeft((prevTime) => prevTime - 1)
-      }, 1000)
-      return () => clearTimeout(timerId)
-    } else if (timeLeft === 0) {
-      endQuiz()
+  const quizId = 1; // Replace with actual quizId
+  const fetchQuizData = async () => {
+    try {
+      const tokens = JSON.parse(localStorage.getItem('authTokens') || '{}');
+      if (!tokens.access) {
+        console.error("No access token found");
+        return;
+      }
+      const response = await axios.get(`http://127.0.0.1:8000/quizzes/quizzes/${quizId}`, {
+        headers: {
+          Authorization: `Bearer ${tokens.access}`,
+        },
+      });
+      const { title, description, questions } = response.data;
+      setQuizTitle(title);
+      setQuizDescription(description);
+      setQuestions(questions);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        console.error("Unauthorized access: Check if the token is valid.");
+      } else {
+        console.error("Error fetching quiz data:", error);
+      }
     }
-  }, [timeLeft, isQuizEnded])
+  };
+
+  fetchQuizData();
+}, []);
 
   const handleAnswerSelect = (index: number) => {
     if (!isSubmitted) {
       setQuestions((prevQuestions) =>
         prevQuestions.map((q) => {
           if (q.id === currentQuestion) {
-            if (q.type === "multipleCorrect") {
-              const selectedAnswers = Array.isArray(q.selectedAnswer) ? q.selectedAnswer : [];
-              const updatedAnswers = selectedAnswers.includes(index)
-                ? selectedAnswers.filter((i) => i !== index)
-                : [...selectedAnswers, index];
-              return { ...q, selectedAnswer: updatedAnswers };
-            } else {
-              return { ...q, selectedAnswer: index };
-            }
+            return { ...q, selectedAnswer: index };
           }
           return q;
         })
-      )
+      );
     }
-  }
+  };
 
   const handleIdentificationInput = (value: string) => {
     if (!isSubmitted) {
@@ -105,26 +81,24 @@ const QuizInterface = () => {
         prevQuestions.map((q) =>
           q.id === currentQuestion ? { ...q, selectedAnswer: value } : q
         )
-      )
+      );
     }
-  }
+  };
 
   const handleSubmit = () => {
     const allQuestionsAnswered = questions.every((q) => {
       if (q.type === "identification") {
         return typeof q.selectedAnswer === "string" && q.selectedAnswer.trim().length > 0;
-      } else if (q.type === "multipleCorrect") {
-        return Array.isArray(q.selectedAnswer) && q.selectedAnswer.length > 0;
       } else {
         return q.selectedAnswer !== undefined;
       }
     });
-  
+
     if (!allQuestionsAnswered) {
-      alert("Please answer all questions before submitting, including identification questions.");
+      alert("Please answer all questions before submitting.");
       return;
     }
-  
+
     const confirmation = confirm("Are you sure you want to submit the quiz?");
     if (confirmation) {
       setIsSubmitted(true);
@@ -132,10 +106,10 @@ const QuizInterface = () => {
       setIsCompletionModalOpen(true);
     }
   };
-  
+
   const handleCompletionModalClose = () => {
     setIsCompletionModalOpen(false);
-    if (viewAnswersImmediately) {
+    if (showAnswers) {
       setShowAnswers(true);
     }
   };
@@ -145,12 +119,12 @@ const QuizInterface = () => {
   };
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
       .toString()
-      .padStart(2, "0")}`
-  }
+      .padStart(2, "0")}`;
+  };
 
   const calculateScore = () => {
     return questions.reduce((score, question) => {
@@ -162,22 +136,10 @@ const QuizInterface = () => {
             : score;
         }
         return score;
-      } 
-      else if (question.type === "multipleCorrect") {
-        const selectedAnswers = Array.isArray(question.selectedAnswer) ? question.selectedAnswer : [];
-        const correctAnswers = question.correctAnswer;
-        const selectedOptions = selectedAnswers.map((index) => question.options[index]);
-        return (
-          selectedOptions.length === correctAnswers.length &&
-          selectedOptions.every((option) => correctAnswers.includes(option))
-        )
-          ? score + 1
-          : score;
-      } 
-      else {
+      } else {
         const selectedAnswer = question.selectedAnswer;
-        if (typeof selectedAnswer === "number") {
-          return question.options[selectedAnswer] === question.correctAnswer
+        if (selectedAnswer !== undefined) {
+          return question.options![selectedAnswer] === question.correctAnswer
             ? score + 1
             : score;
         }
@@ -185,17 +147,16 @@ const QuizInterface = () => {
       }
     }, 0);
   };
-  
 
-  const timerPercentage = (timeLeft / (45 * 60)) * 100
+  const timerPercentage = (timeLeft / (45 * 60)) * 100;
 
   return (
     <div className="min-h-screen bg-[#031C30] p-6 text-white">
       <div className="max-w-6xl mx-auto grid grid-cols-[1fr,300px] gap-6">
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-semibold">Introduction to Python</h1>
-            <p className="text-gray-400">Subject: Programming</p>
+            <h1 className="text-2xl font-semibold">{quizTitle}</h1>
+            <p className="text-gray-400">{quizDescription}</p>
           </div>
 
           {isSubmitted && !showAnswers ? (
@@ -218,46 +179,20 @@ const QuizInterface = () => {
                 </h3>
               </div>
               {questions.map((question, index) => (
-                <div
-                  key={index}
-                  className="mb-6 border-b border-gray-600 pb-4 last:border-none"
-                >
+                <div key={index} className="mb-6 border-b border-gray-600 pb-4 last:border-none">
                   <h3 className="text-lg mb-2">
                     Question {index + 1}: {question.question}
                   </h3>
-                  {question.type === "multipleCorrect" ? (
+                  {question.type === "identification" ? (
                     <div className="bg-[#031C30] p-2 rounded-lg">
-                      <p><strong>Your Answers:</strong></p>
-                      <ul>
-                        {(question.selectedAnswer as number[])?.map((index) => (
-                          <li key={index} className={cn(
-                            (question.correctAnswer as string[]).includes(question.options[index])
+                      <p>
+                        <strong>Your Answer:</strong>
+                        <span
+                          className={cn(
+                            question.selectedAnswer?.toLowerCase() === question.correctAnswer.toLowerCase()
                               ? "text-green-500"
                               : "text-red-500"
                           )}>
-                            {question.options[index]}
-                          </li>
-                        ))}
-                      </ul>
-                      <p><strong>Correct Answers:</strong></p>
-                      <ul>
-                        {(question.correctAnswer as string[]).map((answer, index) => (
-                          <li key={index} className="text-green-500">{answer}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : question.type === "identification" ? (
-                    <div className="bg-[#031C30] p-2 rounded-lg">
-                      <p>
-                        <strong>Your Answer:</strong>{" "}
-                        <span
-                          className={cn(
-                            (question.selectedAnswer as string)?.toLowerCase() ===
-                              question.correctAnswer.toLowerCase()
-                              ? "text-green-500"
-                              : "text-red-500"
-                          )}
-                        >
                           {question.selectedAnswer || "No Answer"}
                         </span>
                       </p>
@@ -266,28 +201,14 @@ const QuizInterface = () => {
                       </p>
                     </div>
                   ) : (
-                    <ul className="space-y-2">
-                      {question.options.map((option, idx) => {
-                        const isCorrect = option === question.correctAnswer
-                        const isSelected = idx === question.selectedAnswer
-
-                        return (
-                          <li
-                            key={idx}
-                            className={cn(
-                              "rounded-lg p-2",
-                              "bg-[#031C30]",
-                              isCorrect && "bg-green-500 text-white",
-                              isSelected && !isCorrect && "bg-red-500 text-white"
-                            )}
-                          >
-                            {option}{" "}
-                            {isCorrect && <span>(Correct Answer)</span>}
-                            {isSelected && !isCorrect && <span>(Your Answer)</span>}
-                          </li>
-                        )
-                      })}
-                    </ul>
+                    <div className="bg-[#031C30] p-2 rounded-lg">
+                      <p>
+                        <strong>Your Answer:</strong> {question.options![question.selectedAnswer as number]}
+                      </p>
+                      <p>
+                        <strong>Correct Answer:</strong> {question.correctAnswer}
+                      </p>
+                    </div>
                   )}
                 </div>
               ))}
@@ -310,43 +231,12 @@ const QuizInterface = () => {
                     onChange={(e) => handleIdentificationInput(e.target.value)}
                     placeholder="Type your answer here"
                   />
-                ) : questions[currentQuestion - 1]?.type === "multipleCorrect" ? (
-                  <div className="space-y-2">
-                    {questions[currentQuestion - 1]?.options.map((option, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          "flex items-center space-x-2 rounded-lg p-4",
-                          "bg-[#031C30] hover:bg-[#052442]",
-                          (questions[currentQuestion - 1]?.selectedAnswer as number[])?.includes(index) &&
-                            "ring-2 ring-blue-500"
-                        )}
-                        onClick={() => handleAnswerSelect(index)}
-                      >
-                        <input
-                          type="checkbox"
-                          id={`option-${index}`}
-                          checked={(questions[currentQuestion - 1]?.selectedAnswer as number[])?.includes(index)}
-                          onChange={() => {}}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        />
-                        <Label
-                          htmlFor={`option-${index}`}
-                          className="flex-grow cursor-pointer"
-                        >
-                          {option}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
                 ) : (
                   <RadioGroup
-                    value={
-                      questions[currentQuestion - 1]?.selectedAnswer?.toString() || ""
-                    }
+                    value={questions[currentQuestion - 1]?.selectedAnswer?.toString() || ""}
                     className="space-y-2"
                   >
-                    {questions[currentQuestion - 1]?.options.map((option, index) => (
+                    {questions[currentQuestion - 1]?.options?.map((option, index) => (
                       <div
                         key={index}
                         className={cn(
@@ -362,10 +252,7 @@ const QuizInterface = () => {
                           id={`option-${index}`}
                           className="border-white"
                         />
-                        <Label
-                          htmlFor={`option-${index}`}
-                          className="flex-grow cursor-pointer"
-                        >
+                        <Label htmlFor={`option-${index}`} className="flex-grow cursor-pointer">
                           {option}
                         </Label>
                       </div>
@@ -405,7 +292,7 @@ const QuizInterface = () => {
           )}
         </div>
 
-        {/* Right-hand Column */}
+        {/* Right-hand Column (Timer and Question Navigation) */}
         {!showAnswers && (
           <div className="space-y-6">
             <div className="bg-[#0a2540] p-6 rounded-lg">
@@ -443,7 +330,7 @@ const QuizInterface = () => {
               </h3>
               <div className="grid grid-cols-5 gap-2">
                 {questions.map((question, i) => {
-                  const isAnswered = question.selectedAnswer !== undefined
+                  const isAnswered = question.selectedAnswer !== undefined;
                   const buttonClass = cn(
                     "w-10 h-10 p-0",
                     i + 1 === currentQuestion
@@ -451,41 +338,33 @@ const QuizInterface = () => {
                       : "bg-[#031C30] hover:bg-[#052442]",
                     isSubmitted &&
                       isAnswered &&
-                      (question.type === "multipleCorrect"
-                        ? (question.correctAnswer as string[]).every(correct => (question.selectedAnswer as number[]).map(index => question.options[index]).includes(correct))
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                        : question.options[question.selectedAnswer as number] ===
-                          question.correctAnswer
+                      (question.correctAnswer === question.options![question.selectedAnswer as number]
                         ? "bg-green-500 text-white"
                         : "bg-red-500 text-white")
-                  )
+                  );
 
                   return (
                     <Button
                       key={i}
-                      variant="outline"
                       className={buttonClass}
                       onClick={() => setCurrentQuestion(i + 1)}
-                      disabled={isSubmitted}
                     >
                       {i + 1}
                     </Button>
-                  )
+                  );
                 })}
               </div>
             </div>
           </div>
         )}
       </div>
+
       <CompletionModal
         isOpen={isCompletionModalOpen}
         onClose={handleCompletionModalClose}
-        setViewAnswersImmediately={setViewAnswersImmediately}
       />
     </div>
-  )
-}
+  );
+};
 
-export default QuizInterface
-
+export default QuizInterface;

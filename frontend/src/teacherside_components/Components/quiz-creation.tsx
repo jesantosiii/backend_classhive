@@ -6,6 +6,12 @@ import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
 import { Clock, CheckCircle2, CircleDot, Type, Trash2 } from "lucide-react";
 import { AnswerChoices } from "../../teacherside_components/Components/answers-choices";
 import { format } from "date-fns";
@@ -27,7 +33,7 @@ interface Question {
   type: "multiple" | "truefalse" | "identification";
   points: number;
   content: string;
-  description: string; // Added description for the question
+  instruction: string; // Added description for the question
   answers: Answer[];
 }
 
@@ -38,14 +44,40 @@ const QuizCreator: React.FC = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [quizName, setQuizName] = useState("");
   const [description, setDescription] = useState("");
+  const [instruction, setInstruction] = useState("");
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
   const [isActive, setIsActive] = useState<boolean>(true); // For 'is_active' toggle
   const [classrooms, setClassrooms] = useState<string[]>([]); // State to store classrooms
   const [classroom, setClassroom] = useState<string>(""); // Selected classroom
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [questionsbank, setQuestionsBank] = useState([]);  // State to hold the questions
+  const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const [loadingClassrooms, setLoadingClassrooms] = useState(true);  // State to track loading for classrooms
+  // Fetch question data when component mounts
   useEffect(() => {
-    // Fetch classrooms from API when component mounts
+    const fetchQuestions = async () => {
+      try {
+        const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
+        const response = await axios.get("http://127.0.0.1:8000/quizzes/question-bank/", {
+          headers: {
+            Authorization: `Bearer ${tokens.access}`,
+          },
+        });
+        setQuestionsBank(response.data);  // Set questions in state
+        setLoadingQuestions(false);  // Set loading to false once data is fetched
+      } catch (error) {
+        console.error("Error fetching questions:", error.response?.data);
+        alert("Failed to fetch questions.");
+        setLoadingQuestions(false);  // Set loading to false even if there’s an error
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  // Fetch classrooms from API when component mounts
+  useEffect(() => {
     const fetchClassrooms = async () => {
       try {
         const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
@@ -54,15 +86,22 @@ const navigate = useNavigate();
             Authorization: `Bearer ${tokens.access}`, // Use access token
           },
         });
-        setClassrooms(response.data); // Assume response contains a list of classes
-      } catch (error: any) {
+        setClassrooms(response.data); // Set classrooms in state
+        setLoadingClassrooms(false); // Set loading to false once data is fetched
+      } catch (error) {
         console.error("Error fetching classrooms:", error.response?.data);
         alert("Failed to fetch classrooms. Please try again.");
+        setLoadingClassrooms(false); // Set loading to false even if there’s an error
       }
     };
 
     fetchClassrooms();
   }, []);
+
+  // Render loading state while fetching questions or classrooms
+  if (loadingQuestions || loadingClassrooms) {
+    return <div>Loading...</div>;
+  }
 
   const handlePublish = async () => {
   const user = getUser (); // Use config.ts to get user details
@@ -95,7 +134,7 @@ const navigate = useNavigate();
     questions: questions.map((q) => ({
       question_type: q.type === "multiple" ? "MC" : q.type === "truefalse" ? "TF" : "ID",
       content: q.content,
-      description: q.description, // Added description here
+      instruction: q.instruction,
       answers: q.answers.map((a) => ({ text: a.text, is_correct: a.isCorrect })),
     })),
   };
@@ -121,7 +160,7 @@ const navigate = useNavigate();
       type: "multiple",
       points: 0,
       content: "",
-      description: "", // Initialize description for each question
+      instruction: "", // Initialize description for each question
       answers: [],
     };
     setQuestions([...questions, newQuestion]);
@@ -161,11 +200,33 @@ const navigate = useNavigate();
                   <Clock className="w-5 h-5 text-gray-500" />
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Button className="bg-[#F6F6F6] shadow-black">Preview</Button>
+                  <Popover>
+                  <PopoverTrigger>
+                    <Button className="bg-[#F6F6F6] shadow-black">Question Bank</Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div>
+                      <h3>Question Bank</h3>
+                      {questionsbank.length === 0 ? (
+                        <p>No questions available.</p>
+                      ) : (
+                          <ul>
+                            {questionsbank.map((question) => (
+                                <li key={question.id}>
+                                  {/* Display only the question text */}
+                                  <h4>{question.content}</h4>
+                                </li>
+                            ))}
+                          </ul>
+                      )}
+                    </div>
+                  </PopoverContent>
+                  </Popover>
                   <Button className="bg-[#031C30] text-white" onClick={() => setModalOpen(true)}>
                     Publish
                   </Button>
                 </div>
+
               </div>
             </div>
 
@@ -236,8 +297,8 @@ const navigate = useNavigate();
                     {/* Conditionally render the text area */}
                     {showInstructions && (
                         <textarea
-                            value={description} // Bind to the description state
-                            onChange={(e) => setDescription(e.target.value)}
+                            value={instruction}
+                            onChange={(e) => setInstruction(e.target.value)}
                             className="w-full min-h-[80px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Enter quiz instructions here..."
                         />

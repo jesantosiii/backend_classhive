@@ -12,7 +12,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'question_type', 'content','description', 'answers']
+        fields = ['id', 'question_type', 'content','instruction', 'answers']
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
@@ -63,7 +63,22 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
     student = serializers.StringRelatedField()  # Assumes CustomUser model has __str__ method
     quiz = QuizSerializer()  # Nested Quiz Serializer
     status_display = serializers.CharField(source='get_status_display', read_only=True)  # Show human-readable status
+    score = serializers.IntegerField()  # Assuming 'score' is an integer field in QuizAttempt model
+    total_score = serializers.IntegerField(source='quiz.total_score', read_only=True)  # Get total score from Quiz model
+    time_spent = serializers.SerializerMethodField()  # Add this field to include the time spent
 
     class Meta:
         model = QuizAttempt
-        fields = ['id', 'student', 'quiz', 'start_time', 'end_time', 'status', 'status_display']
+        fields = ['id', 'student', 'quiz', 'start_time', 'end_time', 'status', 'status_display', 'score', 'total_score', 'time_spent']
+
+    def get_time_spent(self, obj):
+        # Return time spent if end_time exists, else return 0
+        return obj.time_spent
+
+class QuizDetailSerializer(serializers.ModelSerializer):
+    # Nested Question Serializer
+    questions = QuestionSerializer(many=True)
+
+    class Meta:
+        model = Quiz
+        fields = ['id', 'name', 'description', 'start_date', 'end_date', 'timer_duration', 'created_by', 'classroom', 'is_active', 'questions']
