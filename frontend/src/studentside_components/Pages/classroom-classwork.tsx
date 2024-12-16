@@ -3,6 +3,7 @@ import SidebarStudent from "@/components/ui/studentsidebar"
 import { TopBarStudent } from "@/components/ui/topbar-student"
 import { ClassHeaderStudent } from "@/studentside_components/Components/class-header-student"
 import { QuizCard } from "@/studentside_components/Components/classwork-card"
+import {ClassHeader} from "@/teacherside_components/Components/class-header.tsx";
 
 const classData = {
   className: "IT 102 - Introduction to Programming",
@@ -27,10 +28,7 @@ const App: React.FC = () => {
         <TopBarStudent />
         <main className="relative flex-1 p-6 bg-gray-50">
           <div className="w-full max-w-4xl mx-auto space-y-6">
-            <ClassHeaderStudent 
-              className={classData.className}
-              section={classData.section}
-            />
+            <ClassHeader/>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <QuizCard 
                 name={quizData.name}

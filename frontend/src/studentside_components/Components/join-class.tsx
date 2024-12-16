@@ -44,7 +44,7 @@ export function JoinClassForm({ onClassJoined }: JoinClassFormProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="w-32 h-11 bg-[#202 c3c] rounded-xl text-white hover:bg-white hover:text-[#202c3c]">
+        <Button variant="ghost" className="w-32 h-11 bg-sky-950 rounded-xl text-white hover:bg-white hover:text-[#202c3c]">
           <CirclePlus className="mr-2" /> Join Class
         </Button>
       </DialogTrigger>

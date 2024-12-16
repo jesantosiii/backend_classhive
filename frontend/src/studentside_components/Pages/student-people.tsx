@@ -66,16 +66,6 @@ const App: React.FC = () => {
       <div className="flex flex-col flex-1 ml-[270px]">
         <TopBarStudent />
         <main className="relative flex-1 p-6 bg-gray-50">
-          <div className="mb-6">
-            <Button
-              variant="ghost"
-              className="flex items-center gap-2 text-gray-600 hover:text-white rounded hover:rounded"
-              onClick={handleClassFeedNavigation} 
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </Button>
-          </div>
           <PeopleList
             teacher={sampleData.teacher}
             students={sampleData.students}

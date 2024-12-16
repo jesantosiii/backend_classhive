@@ -75,9 +75,9 @@ const App: React.FC = () => {
   }, [location.state]);
 
   const handlePeopleClick = () => {
-    // Navigate to the "People" page
-    navigate("/teacher/people"); // Adjust the path based on your routing setup
+    navigate(`/teacher/classroomcontent/${classInfo.class_code}/people`);
   };
+
 
   if (loading) {
     return <div>Loading class details...</div>;

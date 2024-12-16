@@ -53,25 +53,12 @@ const SidebarStudent: React.FC<SidebarProps> = ({ onClassJoined }) => {
 
       {/* Menu Section */}
       <div className="space-y-4 flex-grow">
-        {/* Dashboard */}
-        <button
-          className={cn(
-            "flex items-center p-2 rounded-lg",
-            activeButton === "dashboard"
-              ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-              : "text-white",
-            "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-          )}
-          onClick={() => handleButtonClick("dashboard", "/dashboard")}
-        >
-          <LayoutDashboardIcon className="mr-3 h-5 w-5" />
-          Dashboard
-        </button>
+
 
         {/* Classroom */}
         <button
           className={cn(
-            "flex items-center p-2 rounded-lg",
+            "flex items-center p-2 w-[200px] rounded-lg",
             activeButton === "classroom"
               ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
               : "text-white",
@@ -86,7 +73,7 @@ const SidebarStudent: React.FC<SidebarProps> = ({ onClassJoined }) => {
         {/* Quizzes */}
         <button
           className={cn(
-            "flex items-center p-2 rounded-lg",
+            "flex items-center p-2 w-[200px] rounded-lg",
             activeButton === "quizzes"
               ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
               : "text-white",
@@ -101,7 +88,7 @@ const SidebarStudent: React.FC<SidebarProps> = ({ onClassJoined }) => {
         {/* Profile */}
         <button
           className={cn(
-            "flex items-center p-2 rounded-lg",
+            "flex items-center p-2 w-[200px] rounded-lg",
             activeButton === "profile"
               ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
               : "text-white",

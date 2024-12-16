@@ -4,6 +4,7 @@ import { TopBarStudent } from '@/components/ui/topbar-student';
 import { ClassCard } from '../Components/class-card';
 import axios from 'axios'; // Import axios for making API calls
 import { getTokens } from "../../../config.ts"; // Import the getTokens function
+import { StudentDashboard } from "../Components/student-dashboard-component";
 
 // Create an Axios instance with default headers
 const api = axios.create({
@@ -58,6 +59,7 @@ const App: React.FC = () => {
       <div className="flex flex-col flex-1 ml-[270px]">
         <TopBarStudent />
         <main className="relative flex-1 p-6">
+          <StudentDashboard/>
           {/* Display Class Cards */}
           <div className="flex flex-wrap justify-center gap-6 mt-16">
             {classes.map((classData, index) => (

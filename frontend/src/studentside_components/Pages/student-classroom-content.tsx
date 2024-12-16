@@ -62,14 +62,6 @@ const App: React.FC = () => {
                   <Notebook className="h-28 w-10 md:h-12 md:w-12" />
                   <span className="text-sm md:text-base">Classwork</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleClassPeopleNavigation}
-                  className="flex flex-col items-center justify-center gap-2 bg-white w-full h-full rounded"
-                >
-                  <Users className="h-28 w-10 md:h-12 md:w-12" />
-                  <span className="text-sm md:text-base">People</span>
-                </Button>
               </div>
               <div className="flex-1 space-y-4">
                 <ClassFeedStudent posts={samplePosts} />

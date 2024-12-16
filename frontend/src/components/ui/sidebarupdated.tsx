@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FileStack, User, FileText, NotebookPen, CirclePlus, LogOut } from 'lucide-react';
 import Logo from "../../assets/Logo/Logo.png";
-import LogoutConfirmation from "./Logout-Confirmation";
+
 
 type SidebarProps = {};
 

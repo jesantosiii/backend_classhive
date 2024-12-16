@@ -50,7 +50,7 @@ const App: React.FC = () => {
           {/* Use :classCode for dynamic routing */}
           <Route path="classroomcontent/:classCode" element={<ClassroomContent />} />
           <Route path="grade-card" element={<ClassroomGradeCard />} />
-          <Route path="people" element={<ClassroomPeople />} />
+          <Route path="classroomcontent/:classCode/people" element={<ClassroomPeople />} />
           <Route path="quiz" element={<ClassroomQuiz />} />
           <Route path="quiz-report" element={<ClassroomQuizReport />} />
           <Route path="WC" element={<ClassroomWC />} />
