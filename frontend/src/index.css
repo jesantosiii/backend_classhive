@@ -170,4 +170,8 @@ body {
   background-color: #555;  /* Darker color on hover */
 }
 
+.input-field {
+  width: 100%; /* Ensure input field expands as needed */
+}
+
 

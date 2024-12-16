@@ -148,6 +148,21 @@ export default function CreateClassForm({ onClassCreated }: Props) {
             </div>
           </div>
         </div>
+      {/* Quote Section */}
+        <div className="bg-[#1B2B3B] p-6 flex items-center justify-center text-white">
+          <div className="space-y-4">
+            <blockquote className="text-2xl font-light leading-relaxed">
+              &ldquo;Creativity is
+              <br />
+              intelligence
+              <br />
+              having fun&rdquo;
+            </blockquote>
+            <footer className="text-sm text-gray-300">
+              -Albert Einstein
+            </footer>
+          </div>
+        </div>
       </div>
     </div>
   );

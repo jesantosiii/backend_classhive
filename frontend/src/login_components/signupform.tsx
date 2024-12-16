@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function SignUpPage() {
+  const handleLoginClick = () => {
+        navigate(`/login`);
+      };
   const useRegister = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -20,6 +23,8 @@ export default function SignUpPage() {
   setLoading(true);
   setError(null);
   setSuccessMessage("");
+
+
 
   try {
     const response = await axios.post(
@@ -156,114 +161,126 @@ export default function SignUpPage() {
           <form className="space-y-6">
             <div className="grid grid-cols-2 gap-3">
               <Input
-                id="firstName"
-                placeholder="First name"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="pr-16"
+                  id="firstName"
+                  placeholder="First name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="pr-16"
               />
               <Input
-                id="lastName"
-                placeholder="Last name"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="pr-8"
+                  id="lastName"
+                  placeholder="Last name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="pr-8"
               />
             </div>
 
             <Input
-              id="middleName"
-              placeholder="Middle name"
-              value={formData.middleName}
-              onChange={handleChange}
-              className="pr-56"
+                id="middleName"
+                placeholder="Middle name"
+                value={formData.middleName}
+                onChange={handleChange}
+                className="pr-56"
             />
 
             <RadioGroup value={formData.gender} onValueChange={handleGenderChange} className="flex space-x-8">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Male" id="Male" className="border-gray-600 text-white" />
+                <RadioGroupItem value="Male" id="Male" className="border-gray-600 text-white"/>
                 <Label htmlFor="Male" className="text-white font-normal">Male</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Female" id="Female" className="border-gray-600 text-white" />
+                <RadioGroupItem value="Female" id="Female" className="border-gray-600 text-white"/>
                 <Label htmlFor="Female" className="text-white font-normal">Female</Label>
               </div>
             </RadioGroup>
 
             <RadioGroup value={formData.role} onValueChange={handleRoleChange} className="flex space-x-8">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Student" id="Student" className="border-gray-600 text-white" />
+                <RadioGroupItem value="Student" id="Student" className="border-gray-600 text-white"/>
                 <Label htmlFor="Student" className="text-white font-normal">Student</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Teacher" id="Teacher" className="border-gray-600 text-white" />
+                <RadioGroupItem value="Teacher" id="Teacher" className="border-gray-600 text-white"/>
                 <Label htmlFor="Teacher" className="text-white font-normal">Teacher</Label>
               </div>
             </RadioGroup>
 
             <Input
-              id="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              maxLength={15}
-              className="pr-56"
+                id="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                maxLength={15}
+                className="pr-56"
             />
             <Input
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="pr-56"
+                id="email"
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="pr-56"
             />
 
             <div className="relative">
               <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                minLength={8}
-                maxLength={20}
-                className="pr-56"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  minLength={8}
+                  maxLength={20}
+                  className="pr-56"
               />
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
               </button>
             </div>
 
             <div className="relative">
               <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                maxLength={20}
-                className="pr-56"
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  maxLength={20}
+                  className="pr-56"
               />
               <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
               >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showConfirmPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
               </button>
             </div>
+            <div className="text-right">
+              <button
+                  type="button"
+                  className="text-white/50 hover:text-white p-0 h-auto font-normal"
+                  onClick={handleLoginClick}
+              >
+                Already have an account?
+              </button>
+
+            </div>
+
 
             <Button
-              onClick={handleSignUpClick}
-              className="w-full bg-[#4B5563] hover:bg-[#374151] text-white rounded-xl h-12 mt-6"
-              disabled={loading}
+                onClick={handleSignUpClick}
+                className="w-full bg-[#4B5563] hover:bg-[#374151] text-white rounded-xl h-12 mt-6"
+                disabled={loading}
             >
               {loading ? "Signing Up..." : "Sign Up"}
             </Button>
+
           </form>
         </div>
       </div>

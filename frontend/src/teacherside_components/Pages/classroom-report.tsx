@@ -6,70 +6,6 @@ import { Student } from '@/teacherside_components/types/report';
 const Report: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('name');
 
-  const mainStyle: React.CSSProperties = {
-    padding: '20px',
-    backgroundColor: '#f5f6f8',
-    minHeight: '100vh',
-    marginTop: '10px',
-  };
-
-  const headerStyle: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '24px',
-  };
-
-  const statsAndButtonContainerStyle: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '24px',
-    gap: '20px',
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  };
-
-  const statCardContainerStyle: React.CSSProperties = {
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    flex: '1',
-  };
-
-  const buttonContainerStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '16px',
-    maxWidth: '200px',
-    backgroundColor: '#0f172a',
-    padding: '16px',
-    borderRadius: '8px',
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    padding: '8px 14px', // Reduced padding to make the button smaller
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#0f172a',
-    color: 'white',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    transition: 'background-color 0.3s ease, transform 0.2s ease', // Transition added for smooth hover effect
-    width: '100%',  // Ensure the buttons take full width within their container
-  };
-
-  const dropdownStyle: React.CSSProperties = {
-    padding: '8px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-    marginBottom: '10px',
-  };
-
   const students: Student[] = [
     { name: 'Jett Paul Reyes', section: 'BSIT 4D-G1', timeTaken: '35 minutes', score: '10/10' },
     { name: 'Jerome Ibarreta', section: 'BSIT 4D-G1', timeTaken: '42 minutes', score: '10/10' },
@@ -88,33 +24,57 @@ const Report: React.FC = () => {
     return 0;
   });
 
+  const exportToCSV = () => {
+    const headers = ['Name', 'Section', 'Time Taken', 'Score'];
+    const rows = sortedStudents.map(student => [
+      student.name,
+      student.section,
+      student.timeTaken,
+      student.score
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div>
-      <main style={mainStyle}>
-        <div style={headerStyle}>
+      <main className="p-5 bg-gray-100 min-h-screen mt-2.5">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 style={{ margin: '0', marginBottom: '4px' }}>Introduction to Python</h1>
-            <span style={{ color: '#666' }}>Date Created: 11-17-2024</span>
+            <h1 className="text-2xl font-bold mb-1">Introduction to Python</h1>
+            <span className="text-gray-600">Date Created: 11-17-2024</span>
           </div>
         </div>
 
-        {/* Stats and Button Container */}
-        <div style={statsAndButtonContainerStyle}>
-          <div style={statCardContainerStyle}>
+        <div className="flex justify-between items-start mb-6 gap-5 bg-white p-5 rounded-lg shadow-md">
+          <div className="flex-1 bg-white p-5 rounded-lg shadow-sm">
             <StatCard
               icon={<div>👥</div>}
               title="Total of Students"
               value={55}
             />
           </div>
-          <div style={statCardContainerStyle}>
+          <div className="flex-1 bg-white p-5 rounded-lg shadow-sm">
             <StatCard
               icon={<div>📊</div>}
               title="Total Student Progress"
               value={50}
             />
           </div>
-          <div style={statCardContainerStyle}>
+          <div className="flex-1 bg-white p-5 rounded-lg shadow-sm">
             <StatCard
               icon={<div>❓</div>}
               title="Questions"
@@ -122,30 +82,27 @@ const Report: React.FC = () => {
             />
           </div>
 
-          <div style={buttonContainerStyle}>
-            <button
-              style={buttonStyle}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#374151'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0f172a'}
-            >
+          <div className="flex flex-col items-start gap-4 max-w-[200px] bg-gray-900 p-4 rounded-lg">
+            <button className="w-full py-2 px-3.5 rounded bg-gray-900 text-white font-bold transition-colors hover:bg-gray-700">
               Reveal Answers
             </button>
             <button
-              style={buttonStyle}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#374151'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0f172a'}
+              className="w-full py-2 px-3.5 rounded bg-gray-900 text-white font-bold transition-colors hover:bg-gray-700"
+              onClick={exportToCSV}
             >
               Download Report
+            </button>
+            <button className="w-full py-2 px-3.5 rounded bg-gray-900 text-white font-bold transition-colors hover:bg-gray-700">
+              View
             </button>
           </div>
         </div>
 
-        {/* Participants Section with Background Color */}
-        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ color: '#fff' }}>Participants</h2>
+        <div className="bg-gray-900 p-4 rounded-lg mb-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-white text-xl font-bold">Participants</h2>
             <select
-              style={dropdownStyle}
+              className="p-2 rounded border border-gray-300"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -155,16 +112,10 @@ const Report: React.FC = () => {
           </div>
         </div>
 
-        {/* Table with Sorted Data */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        }}>
+        <div className="bg-white rounded-lg overflow-hidden shadow-md">
           <Table>
             <TableHeader>
-              <TableRow style={{ backgroundColor: '#e9f5fe' }}>
+              <TableRow className="bg-blue-50">
                 <TableHead>Name</TableHead>
                 <TableHead>Section</TableHead>
                 <TableHead>Time Taken</TableHead>
@@ -175,9 +126,7 @@ const Report: React.FC = () => {
               {sortedStudents.map((student, index) => (
                 <TableRow
                   key={index}
-                  style={{
-                    backgroundColor: index % 2 === 0 ? '#ffffff' : '#e9f5fe',
-                  }}
+                  className={index % 2 === 0 ? 'bg-white' : 'bg-blue-50'}
                 >
                   <TableCell>{student.name}</TableCell>
                   <TableCell>{student.section}</TableCell>
@@ -194,3 +143,4 @@ const Report: React.FC = () => {
 };
 
 export default Report;
+

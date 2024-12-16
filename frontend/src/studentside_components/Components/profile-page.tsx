@@ -46,7 +46,7 @@ export const ProfilePage: React.FC = () => {
   }, []);
 
   const handleProfileChange = (key: keyof UserProfile) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setProfile((prev) => (prev ? { ...prev, [key]: e.target.value } : null));
   };
@@ -127,16 +127,17 @@ export const ProfilePage: React.FC = () => {
                 <div className="relative">
                   <Avatar className="w-32 h-32 border-4 border-white absolute bottom-[1px] left-0">
                     <AvatarImage src="/placeholder.svg" alt="Profile picture" />
-                    <AvatarFallback>LE</AvatarFallback>
+                    <AvatarFallback>
+                      {profile.username.slice(0, 2).toUpperCase() || 'NA'}
+                    </AvatarFallback>
                   </Avatar>
                 </div>
+
                 <div className="ml-36 text-white">
                   <h1 className="text-2xl font-bold">
                     {profile.first_name} {profile.last_name}
                   </h1>
-                  <p className="text-sm text-gray-300">
-                    User ID: {profile.username}
-                  </p>
+                  <p className="text-sm text-gray-300">User ID: {profile.username}</p>
                 </div>
               </div>
             </div>
@@ -162,45 +163,22 @@ export const ProfilePage: React.FC = () => {
                 { label: 'First Name', key: 'first_name' },
                 { label: 'Last Name', key: 'last_name' },
                 { label: 'Middle Name', key: 'middle_name' },
-                {
-                  label: 'Gender',
-                  key: 'gender',
-                  type: 'select',
-                  options: ['Male', 'Female'],
-                },
-                { label: 'Email', key: 'email', type: 'email' },
-                { label: 'Username', key: 'username' },
-              ].map(({ label, key, type = 'text', options }) => (
+                { label: 'Gender', key: 'gender', alwaysDisabled: true },
+                { label: 'Email', key: 'email', type: 'email', alwaysDisabled: true },
+                { label: 'Username', key: 'username', alwaysDisabled: true },
+              ].map(({ label, key, type = 'text', alwaysDisabled = false }) => (
                 <div key={key} className="space-y-2">
                   <Label htmlFor={key} className="text-sm font-medium">
                     {label}
                   </Label>
-                  {type === 'select' ? (
-                    <select
-                      id={key}
-                      value={profile[key as keyof UserProfile]}
-                      onChange={handleProfileChange(key as keyof UserProfile)}
-                      disabled={!isEditing}
-                      className={`w-full p-2 rounded-xl ${
-                        !isEditing ? 'bg-transparent text-white' : 'bg-white text-black'
-                      }`}
-                    >
-                      {options?.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <Input
-                      id={key}
-                      type={type}
-                      value={profile[key as keyof UserProfile]}
-                      onChange={handleProfileChange(key as keyof UserProfile)}
-                      disabled={!isEditing}
-                      className="rounded-xl"
-                    />
-                  )}
+                  <Input
+                    id={key}
+                    type={type}
+                    value={profile[key as keyof UserProfile]}
+                    onChange={handleProfileChange(key as keyof UserProfile)}
+                    disabled={alwaysDisabled || !isEditing}
+                    className="rounded-xl"
+                  />
                 </div>
               ))}
             </div>
@@ -229,7 +207,8 @@ export const ProfilePage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[{ label: 'Enter your password', key: 'current' },
+              {[
+                { label: 'Enter your password', key: 'current' },
                 { label: 'Enter New password', key: 'new' },
                 { label: 'Confirm your password', key: 'confirm' },
               ].map(({ label, key }) => (

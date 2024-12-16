@@ -30,7 +30,7 @@ const Input: FC<InputProps> = ({
       onChange={onChange}
       maxLength={maxLength}
       minLength={minLength}
-      className={`bg-transparent border-gray-600 text-white border-b border-t-0 border-x-0 rounded-none px-0 h-12 placeholder:text-gray-400 focus:border-white focus:ring-0 ${className}`}
+      className={`bg-transparent border-gray-600 text-white border-b border-t-0 border-x-0 rounded-none px-0 h-12 w-full placeholder:text-gray-400 focus:border-white focus:ring-0 ${className}`}
       {...props}
     />
   );

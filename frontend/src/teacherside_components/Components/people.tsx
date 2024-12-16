@@ -1,11 +1,12 @@
 import React from "react";
-import { Trash } from "lucide-react";
+import { Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Person {
     id: string;
     name: string;
-    avatarUrl?: string; // Optional, as it's not included in your data
+    avatarUrl?: string;
     role: "teacher" | "student";
 }
 
@@ -15,6 +16,12 @@ interface PeopleListProps {
 }
 
 export function PeopleList({ teacher, students }: PeopleListProps) {
+    const navigate = useNavigate();
+
+    const handleViewGradeCard = (studentId: string) => {
+        navigate(`/teacher/grade-card/`);
+    };
+
     return (
         <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="bg-[#0B1829] p-6">
@@ -61,9 +68,14 @@ export function PeopleList({ teacher, students }: PeopleListProps) {
                                         </span>
                                     </div>
                                     <div className="text-right px-4">
-                                        <Button variant="ghost" size="icon">
-                                            <Trash className="h-4 w-4" />
-                                            <span className="sr-only">Delete</span>
+                                        <Button
+                                            className={"rounded-xl hover:bg-sky-950"}
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleViewGradeCard(student.id)}
+                                        >
+                                            <Eye className="h-4 w-4" />
+                                            <span className="sr-only">View Grade Card</span>
                                         </Button>
                                     </div>
                                 </div>
@@ -77,3 +89,4 @@ export function PeopleList({ teacher, students }: PeopleListProps) {
         </div>
     );
 }
+

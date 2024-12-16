@@ -20,6 +20,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false); // State for loading
   const navigate = useNavigate();
 
+   const handleSignupClick = () => {
+    navigate(`/signup`);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -57,6 +61,7 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
@@ -67,72 +72,57 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold text-white">Login</h1>
           <form onSubmit={handleLogin} className="space-y-6">
             {errorMessage && (
-              <div className="text-red-500 text-sm">{errorMessage}</div>
+                <div className="text-red-500 text-sm">{errorMessage}</div>
             )}
             <div className="space-y-2">
               <Input
-                id="identifier"
-                placeholder="Username or Email"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                className="pr-52"
+                  id="identifier"
+                  placeholder="Username or Email"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  className="pr-52 "
               />
             </div>
             <div className="space-y-2 relative">
               <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pr-52"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-52"
               />
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5"/>
                 ) : (
-                  <Eye className="h-5 w-5" />
+                    <Eye className="h-5 w-5"/>
                 )}
               </button>
             </div>
             <div className="text-right">
               <button
-                type="button"
-                className="text-white/50 hover:text-white p-0 h-auto font-normal"
+                  type="button"
+                  className="text-white/50 hover:text-white p-0 h-auto font-normal"
+                  onClick={handleSignupClick}
               >
-                Forgot Password?
+                Don't Have an account?
               </button>
+
             </div>
             <button
-              type="submit"
-              className="w-full py-2 px-4 bg-[#4a6c80] hover:bg-[#5d7d91] text-white rounded-md"
-              disabled={loading}
+                type="submit"
+                className="w-full py-2 px-4 bg-[#4a6c80] hover:bg-[#5d7d91] text-white rounded-md"
+                disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button
-              type="button"
-              className="p-2 rounded-full border border-white/20 text-white hover:text-white hover:bg-white/10"
-            >
-              <Facebook className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              className="p-2 rounded-full border border-white/20 text-white hover:text-white hover:bg-white/10"
-            >
-              <img
-                src="https://via.placeholder.com/20"
-                alt="Google"
-                className="w-5 h-5 opacity-75"
-              />
-            </button>
-          </div>
+
         </div>
       </div>
 
