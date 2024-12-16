@@ -6,9 +6,11 @@ import StudentWC from "./studentside_components/Pages/student-wc";
 import StudentDB from "./studentside_components/Pages/student-dashboard";
 import Profile from "./studentside_components/Pages/student-profile";
 import StudentCC from './studentside_components/Pages/student-classroom-content';
+
 import StudentCW from './studentside_components/Pages/classroom-classwork'
 import StudentPL from './studentside_components/Pages/student-people'
 import StudentQL from './studentside_components/Pages/student-quizzes'
+
 
 // Teacher pages
 import ClassroomContent from '@/teacherside_components/Pages/classroom-content';
@@ -30,7 +32,6 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-       
         <Route path="/" element={<Navigate to="/home" />} />
           <Route path="home" element={<LandingPage/>} />
           <Route path="dashboard" element={<StudentDB />} />
@@ -44,9 +45,11 @@ const App: React.FC = () => {
           <Route path="verification" element={<Verification />} />
           <Route path="quizzes" element={<StudentQL />} />
 
+
         {/* Teacher Routes */}
         <Route path="/teacher/*">
-          <Route path="classroomcontent" element={<ClassroomContent />} />
+          {/* Use :classCode for dynamic routing */}
+          <Route path="classroomcontent/:classCode" element={<ClassroomContent />} />
           <Route path="grade-card" element={<ClassroomGradeCard />} />
           <Route path="people" element={<ClassroomPeople />} />
           <Route path="quiz" element={<ClassroomQuiz />} />

@@ -13,7 +13,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-white relative">
       <Sidebar />
-      <div className="flex flex-col flex-1 ml-[270px]">
+      <div className="flex flex-col flex-1 msl-[270px]">
         <TopBar />
         <main className="flex-1 flex flex-col justify-center items-center">
           <div className="-mb-10 -translate-y-20">
