@@ -1,12 +1,14 @@
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from students.models import StudentClasses
 from teachers.models import Classroom
-from .models import Quiz, StudentResponse, QuizAttempt
+from .models import Quiz, StudentResponse, QuizAttempt, Question
 from .serializers import QuizSerializer, StudentResponseSerializer, QuestionSerializer, AnswerSerializer, \
     QuizListSerializer, QuizAttemptSerializer
 
@@ -17,7 +19,6 @@ def create_quiz(request):
     classroom_id = request.data.get('classroom', None)
     if not classroom_id:
         return Response({"detail": "Classroom ID is required to assign the quiz."}, status=status.HTTP_400_BAD_REQUEST)
-
 
     classroom = get_object_or_404(Classroom, pk=classroom_id)
 
@@ -135,7 +136,36 @@ def get_quiz_scores(request, classroom_id, quiz_id):
     # Get all quiz attempts for the given quiz in the classroom
     quiz_attempts = QuizAttempt.objects.filter(quiz=quiz)
 
-    # Serialize the quiz attempts (student, score, total score)
+    # Serialize the quiz attempts (student, score, total score, time spent)
     serializer = QuizAttemptSerializer(quiz_attempts, many=True)
 
     return Response(serializer.data)
+
+class TeacherQuestionBankView(ListAPIView):
+    """
+    API view to fetch all questions created by the authenticated teacher.
+    """
+    serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Filter questions to only include those created by the authenticated teacher.
+        """
+        user = self.request.user
+        return Question.objects.filter(quiz__created_by=user)
+
+class TeacherQuizListView(ListAPIView):
+    """
+    API view to fetch all quizzes created by the authenticated teacher.
+    """
+    serializer_class = QuizListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Filter quizzes to only include those created by the authenticated teacher.
+        """
+        user = self.request.user
+        return Quiz.objects.filter(created_by=user)
+

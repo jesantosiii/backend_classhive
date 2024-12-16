@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -10,76 +10,106 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Eye } from 'lucide-react'
-import {useNavigate} from "react-router-dom";
+} from "@/components/ui/table";
+import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { getTokens } from "../../../config.ts";
 
 interface Quiz {
-  quizCode: string
-  quizName: string
-  section: string
-  dateCreated: string
+  id: number;
+  name: string;
+  description: string;
+  classroom: number;
 }
-
-const initialQuizzes: Quiz[] = [
-  {
-    quizCode: "400100",
-    quizName: "Introduction to Python Quiz",
-    section: "BSIT 4D - 01",
-    dateCreated: "11-17-24",
-  },
-  {
-    quizCode: "400101",
-    quizName: "Python Programming Fundamentals Quiz",
-    section: "BSIT 4D - 02",
-    dateCreated: "11-17-24",
-  },
-  {
-    quizCode: "400102",
-    quizName: "Python Basics Quiz",
-    section: "BSIT 4D - 03",
-    dateCreated: "11-17-24",
-  },
-]
 
 const QuizReport = () => {
   const navigate = useNavigate();
-    const handleViewClick = () => {
-    navigate("/teacher/classroomreport");
-  };
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]); // Store quizzes from the backend
+  const [searchQuizName, setSearchQuizName] = useState("");
+  const [searchSection, setSearchSection] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  const [quizzes] = useState<Quiz[]>(initialQuizzes)
-  const [searchQuizName, setSearchQuizName] = useState("")
-  const [searchSection, setSearchSection] = useState("")
-  const [dateFrom, setDateFrom] = useState("")
-  const [dateTo, setDateTo] = useState("")
+  // Fetch quizzes from the backend
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const tokens = getTokens(); // Retrieve tokens from config.ts
+        if (!tokens || !tokens.access) {
+          throw new Error("Access token is missing");
+        }
 
-  const filteredQuizzes = quizzes.filter(quiz => {
-    const matchesQuizName = quiz.quizName.toLowerCase().includes(searchQuizName.toLowerCase());
-    const matchesSection = quiz.section.toLowerCase().includes(searchSection.toLowerCase());
-    const matchesDate = (!dateFrom || new Date(quiz.dateCreated) >= new Date(dateFrom)) &&
-                        (!dateTo || new Date(quiz.dateCreated) <= new Date(dateTo));
+        const response = await axios.get("http://127.0.0.1:8000/quizzes/teacher/quizzes/", {
+          headers: {
+            Authorization: `Bearer ${tokens.access}`, // Add the token to the Authorization header
+          },
+        });
+
+        // Transform the data to match the UI structure
+        const transformedQuizzes = response.data.map((quiz: Quiz) => ({
+          id: quiz.id,
+          name: quiz.name,
+          description: quiz.description,
+          classroom: quiz.classroom,
+        }));
+
+        setQuizzes(transformedQuizzes);
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      }
+    };
+
+    fetchQuizzes();
+  }, []);
+
+  // Store Quiz_ID and Classroom_ID in localStorage and navigate
+  const handleViewClick = (quizId: number, classroomId: number, quizName: string) => {
+  localStorage.setItem("selectedQuizId", quizId.toString());
+  localStorage.setItem("selectedClassroomId", classroomId.toString());
+  localStorage.setItem("selectedQuizName", quizName);  // Store the quiz name in localStorage
+
+  navigate("/teacher/classroomreport");
+};
+
+
+  // Filter quizzes based on user input
+  const filteredQuizzes = quizzes.filter((quiz) => {
+    const matchesQuizName = quiz.name
+      .toLowerCase()
+      .includes(searchQuizName.toLowerCase());
+    const matchesSection = quiz.description
+      .toLowerCase()
+      .includes(searchSection.toLowerCase());
+    const matchesDate =
+      (!dateFrom || new Date(quiz.classroom) >= new Date(dateFrom)) &&
+      (!dateTo || new Date(quiz.classroom) <= new Date(dateTo));
 
     return matchesQuizName && matchesSection && matchesDate;
   });
 
+  // Export filtered quizzes as CSV
   const downloadCSV = () => {
     const csvData = [
-      ["Quiz Code", "Quiz Name", "Section", "Date Created"], // Header
-      ...filteredQuizzes.map(quiz => [quiz.quizCode, quiz.quizName, quiz.section, quiz.dateCreated]) // Data
+      ["ID", "Name", "Description", "Classroom"], // Header
+      ...filteredQuizzes.map((quiz) => [
+        quiz.id,
+        quiz.name,
+        quiz.description,
+        quiz.classroom,
+      ]), // Data
     ];
 
-    const csvString = csvData.map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvString], { type: 'text/csv' });
+    const csvString = csvData.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = 'quizzes.csv';
+    link.download = "quizzes.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
   };
 
   return (
@@ -130,25 +160,30 @@ const QuizReport = () => {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-gray-100">
-              <TableHead className="font-semibold">Quiz Code</TableHead>
-              <TableHead className="font-semibold">Quiz Name</TableHead>
-              <TableHead className="font-semibold">Section</TableHead>
-              <TableHead className="font-semibold">Date Created</TableHead>
+              <TableHead className="font-semibold">ID</TableHead>
+              <TableHead className="font-semibold">Name</TableHead>
+              <TableHead className="font-semibold">Description</TableHead>
+              <TableHead className="font-semibold">Classroom</TableHead>
               <TableHead className="w-[80px] font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredQuizzes.map((quiz, index) => (
               <TableRow
-                key={quiz.quizCode}
-                className={index % 2 === 0 ? "bg-blue-50" : "bg-white"} // Alternating background colors
+                key={quiz.id}
+                className={index % 2 === 0 ? "bg-blue-50" : "bg-white"}
               >
-                <TableCell>{quiz.quizCode}</TableCell>
-                <TableCell>{quiz.quizName}</TableCell>
-                <TableCell>{quiz.section}</TableCell>
-                <TableCell>{quiz.dateCreated}</TableCell>
+                <TableCell>{quiz.id}</TableCell>
+                <TableCell>{quiz.name}</TableCell>
+                <TableCell>{quiz.description}</TableCell>
+                <TableCell>{quiz.classroom}</TableCell>
                 <TableCell>
-                  <Button onClick={handleViewClick} variant="ghost" size="icon" className="h-8 w-8 rounded-xl">
+                  <Button
+                    onClick={() => handleViewClick(quiz.id, quiz.classroom, quiz.name)}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-xl"
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -158,7 +193,7 @@ const QuizReport = () => {
         </Table>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default QuizReport;
