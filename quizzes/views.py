@@ -33,7 +33,6 @@ def create_quiz(request):
 
     return Response(quiz_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 # Submit student answers (POST request)
 @api_view(['POST'])
 def submit_answers(request, quiz_id):
