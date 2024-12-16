@@ -45,7 +45,7 @@ export default function LoginPage() {
       if (role === "Student") {
         navigate("/classroom");
       } else if (role === "Teacher") {
-        navigate("/WC");
+        navigate("/teacher/WC");
       } else {
         setErrorMessage("Invalid role. Please contact support.");
       }
