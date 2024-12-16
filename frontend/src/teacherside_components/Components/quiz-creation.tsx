@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 import Logo from "../../assets/Logo/Classhive L.png";
 import ClassHive from "../../assets/ClasshiveLP.png";
 import { Switch } from "@/components/ui/switch"; // Import Switch
+import { getTokens, getUser } from "../../../config.ts";
+import { useNavigate } from 'react-router-dom';
+
 
 interface Answer {
   id: string;
@@ -40,7 +43,7 @@ const QuizCreator: React.FC = () => {
   const [isActive, setIsActive] = useState<boolean>(true); // For 'is_active' toggle
   const [classrooms, setClassrooms] = useState<string[]>([]); // State to store classrooms
   const [classroom, setClassroom] = useState<string>(""); // Selected classroom
-
+const navigate = useNavigate();
   useEffect(() => {
     // Fetch classrooms from API when component mounts
     const fetchClassrooms = async () => {
@@ -62,44 +65,54 @@ const QuizCreator: React.FC = () => {
   }, []);
 
   const handlePublish = async () => {
-    const userDetails = Cookies.get("userDetails");
-    const user = userDetails ? JSON.parse(userDetails) : null;
+  const user = getUser (); // Use config.ts to get user details
+  if (!user) {
+    alert("User  details not found. Please log in again.");
+    return;
+  }
 
-    if (!user) {
-      alert("User details not found in cookies.");
-      return;
-    }
+  const tokens = getTokens(); // Use config.ts to get tokens
+  if (!tokens) {
+    alert("Authentication tokens not found. Please log in again.");
+    return;
+  }
 
-    const quizData = {
-      name: quizName,
-      description,
-      start_date: dateFrom ? format(dateFrom, "yyyy-MM-dd") : null,
-      end_date: dateTo ? format(dateTo, "yyyy-MM-dd") : null,
-      timer_duration: timeLimit,
-      created_by: user.id,
-      classroom: classroom, // Dynamically set classroom
-      is_active: isActive,
-      questions: questions.map((q) => ({
-        question_type: q.type === "multiple" ? "MC" : q.type === "truefalse" ? "TF" : "ID",
-        content: q.content,
-        description: q.description, // Added description here
-        answers: q.answers.map((a) => ({ text: a.text, is_correct: a.isCorrect })),
-      })),
-    };
+  // Validate required fields
+  if (!quizName || !classroom || questions.length === 0) {
+    alert("Please fill in all required fields: Quiz Name, Classroom, and at least one question.");
+    return;
+  }
 
-    try {
-      const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
-      const response = await axios.post("http://127.0.0.1:8000/quizzes/api/quizzes/", quizData, {
-        headers: {
-          Authorization: `Bearer ${tokens?.access}`,
-        },
-      });
-      alert("Quiz published successfully!");
-    } catch (error) {
-      console.error("Error publishing quiz:", error);
-      alert("Failed to publish quiz.");
-    }
+  const quizData = {
+    name: quizName,
+    description: description,
+    start_date: dateFrom ? format(dateFrom, "yyyy-MM-dd") : null,
+    end_date: dateTo ? format(dateTo, "yyyy-MM-dd") : null,
+    timer_duration: timeLimit,
+    created_by: user.id,
+    classroom: classroom,
+    is_active: isActive,
+    questions: questions.map((q) => ({
+      question_type: q.type === "multiple" ? "MC" : q.type === "truefalse" ? "TF" : "ID",
+      content: q.content,
+      description: q.description, // Added description here
+      answers: q.answers.map((a) => ({ text: a.text, is_correct: a.isCorrect })),
+    })),
   };
+
+  try {
+    const response = await axios.post("http://127.0.0.1:8000/quizzes/api/quizzes/", quizData, {
+      headers: {
+        Authorization: `Bearer ${tokens.access}`, // Use access token from config.ts
+      },
+    });
+    alert("Quiz published successfully!");
+    navigate('/teacher/Wc');
+  } catch (error) {
+    console.error("Error publishing quiz:", error);
+    alert("Failed to publish quiz. Please check the console for more details.");
+  }
+};
 
 
 
@@ -294,12 +307,13 @@ const QuizCreator: React.FC = () => {
                       <SelectValue placeholder="Select classroom"/>
                     </SelectTrigger>
                     <SelectContent>
-                      {classrooms.map((classroomName, index) => (
-                          <SelectItem key={index} value={classroomName}>
-                            {classroomName}
-                          </SelectItem>
+                      {classrooms.map((classroom, index) => (
+                        <SelectItem key={classroom.id} value={classroom.id}>
+                          {classroom.class_name} {/* Replace `class_name` with the appropriate property to display */}
+                        </SelectItem>
                       ))}
                     </SelectContent>
+
                   </Select>
                 </div>
                 <div className="mb-4">
