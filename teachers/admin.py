@@ -4,6 +4,7 @@ from students.models import StudentClasses  # Import StudentClasses from the stu
 from .models import Classroom
 from accounts.models import CustomUser
 
+
 # Inline admin to manage students in the classroom
 class StudentClassesInline(admin.TabularInline):
     model = StudentClasses

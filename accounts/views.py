@@ -2,6 +2,7 @@ import random
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -26,6 +27,8 @@ def send_confirmation_email(user_email, confirmation_code):
     from_email = settings.DEFAULT_FROM_EMAIL
     send_mail(subject, message, from_email, [user_email])
 
+
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
