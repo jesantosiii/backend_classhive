@@ -8,6 +8,7 @@ import Profile from "./studentside_components/Pages/student-profile";
 import StudentCC from './studentside_components/Pages/student-classroom-content';
 import StudentCW from './studentside_components/Pages/classroom-classwork'
 import StudentPL from './studentside_components/Pages/student-people'
+import StudentQL from './studentside_components/Pages/student-quizzes'
 
 // Teacher pages
 import ClassroomContent from '@/teacherside_components/Pages/classroom-content';
@@ -17,6 +18,7 @@ import ClassroomQuizReport from '@/teacherside_components/Pages/classroom-quiz-r
 import ClassroomQuiz from '@/teacherside_components/Pages/classroom-quiz';
 import ClassroomWC from '@/teacherside_components/Pages/classroom-WC';
 import TeacherProfile from '@/teacherside_components/Pages/teacher-profile';
+import TeacherQR from '@/teacherside_components/Pages/classroom-reports';
 
 // General Pages
 import LandingPage from "./Landing_page_components/landing-page";
@@ -39,7 +41,8 @@ const App: React.FC = () => {
           <Route path="classroompeople" element={<StudentPL />} />
           <Route path="login" element={<LoginPage />} /> 
           <Route path="signup" element={<SignUpPage />} /> 
-          <Route path="verification" element={<Verification />} /> 
+          <Route path="verification" element={<Verification />} />
+          <Route path="quizzes" element={<StudentQL />} />
 
         {/* Teacher Routes */}
         <Route path="/teacher/*">
@@ -50,6 +53,7 @@ const App: React.FC = () => {
           <Route path="quiz-report" element={<ClassroomQuizReport />} />
           <Route path="WC" element={<ClassroomWC />} />
           <Route path="profile" element={<TeacherProfile />} />
+          <Route path="classroomreport" element={<TeacherQR />} />
         </Route>
 
         {/* Redirect if the path doesn't match */}
