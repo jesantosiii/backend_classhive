@@ -25,7 +25,7 @@ const samplePosts = [
 
 const App: React.FC = () => {
   const [classInfo, setClassInfo] = useState<any>(null); // State for class information
-  const [classes,setClasses] = useState<any[]>([]); // State for list of classes
+  const [classes, setClasses] = useState<any[]>([]); // State for list of classes
   const [loading, setLoading] = useState(true); // Loading state for class info
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
   const navigate = useNavigate(); // Initialize navigate

@@ -6,15 +6,22 @@ import { useNavigate } from "react-router-dom";
 
 interface ClassCardProps {
   className: string;
-  classroomId: string; // Keep classroomId for navigation
+  classroomId: string; // Classroom ID for navigation
 }
 
 export function ClassCard({ className, classroomId }: ClassCardProps) {
   const navigate = useNavigate();
 
   const handleOpenClassroom = () => {
-    navigate(`/classroomcontent/`); // Navigate to the specific classroom
-  };
+  if (classroomId) {
+    navigate(`/classroomcontent/${classroomId}`, {
+      state: { className },
+    });
+  } else {
+    console.error("Invalid classroom ID");
+  }
+};
+
 
   return (
     <Card className="w-[300px] overflow-hidden bg-white shadow-lg rounded-2xl">
@@ -33,7 +40,7 @@ export function ClassCard({ className, classroomId }: ClassCardProps) {
         >
           Open
         </Button>
- </div>
+      </div>
     </Card>
   );
 }

@@ -1,17 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SidebarStudent from '@/components/ui/studentsidebar';
 import { TopBarStudent } from '@/components/ui/topbar-student';
 import { ClassCard } from '../Components/class-card';
+import axios from 'axios'; // Import axios for making API calls
+import { getTokens } from "../../../config.ts"; // Import the getTokens function
+
+// Create an Axios instance with default headers
+const api = axios.create({
+  baseURL: 'http://127.0.0.1:8000/students/', // Adjust the base URL as needed
+});
+
+// Set the Authorization header dynamically based on the token retrieved
+const setAuthorizationHeader = () => {
+  const tokens = getTokens();
+  if (tokens && tokens.access) {
+    api.defaults.headers['Authorization'] = `Bearer ${tokens.access}`;
+  }
+};
 
 const App: React.FC = () => {
   const [classes, setClasses] = useState<
-    { className: string; section: string; subject: string }[]
+    { className: string; classroomId: string; subject: string }[]
   >([]);
 
   const handleClassJoined = (classData: { className: string; section: string; subject: string }) => {
     // Assuming classData contains the correct structure from the backend
     setClasses((prevClasses) => [...prevClasses, classData]);
   };
+
+  // Fetch classes when the component mounts
+  useEffect(() => {
+    // Set the Authorization header before making the request
+    setAuthorizationHeader();
+
+    const fetchClasses = async () => {
+      try {
+        const response = await api.get('classes/'); // Use the axios instance
+        console.log('Response:', response.data); // Log the response to check its structure
+        const fetchedClasses = response.data.map((studentClass: any) => ({
+          className: studentClass.classroom.class_name, // Adjust based on your backend response structure
+          classroomId: studentClass.classroom.id, // Get the classroom ID
+          subject: studentClass.classroom.subject, // Get the subject if needed
+        }));
+        setClasses(fetchedClasses);
+      } catch (error) {
+        console.error('Error fetching classes:', error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchClasses();
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <div className="min-h-screen flex bg-white relative">
@@ -26,8 +64,7 @@ const App: React.FC = () => {
               <ClassCard
                 key={index}
                 className={classData.className}
-                section={classData.section}
-                subject={classData.subject}
+                classroomId={classData.classroomId} // Pass the classroom ID to ClassCard
               />
             ))}
           </div>

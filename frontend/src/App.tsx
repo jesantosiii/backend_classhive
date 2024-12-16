@@ -36,7 +36,7 @@ const App: React.FC = () => {
           <Route path="dashboard" element={<StudentDB />} />
           <Route path="classroom" element={<StudentWC />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="classroomcontent" element={<StudentCC />} />
+          <Route path="classroomcontent/:classid" element={<StudentCC />} />
           <Route path="classroomclasswork" element={<StudentCW />} />
           <Route path="classroompeople" element={<StudentPL />} />
           <Route path="login" element={<LoginPage />} /> 
