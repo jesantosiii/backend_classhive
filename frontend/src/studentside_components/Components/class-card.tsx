@@ -6,15 +6,14 @@ import { useNavigate } from "react-router-dom";
 
 interface ClassCardProps {
   className: string;
-  section: string;
-  subject: string;
+  classroomId: string; // Keep classroomId for navigation
 }
 
-export function ClassCard({ className, section, subject }: ClassCardProps) {
+export function ClassCard({ className, classroomId }: ClassCardProps) {
   const navigate = useNavigate();
 
   const handleOpenClassroom = () => {
-    navigate("/classroomcontent"); 
+    navigate(`/classroomcontent/${classroomId}`); // Navigate to the specific classroom with classroomId
   };
 
   return (
@@ -26,20 +25,11 @@ export function ClassCard({ className, section, subject }: ClassCardProps) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="font-medium text-lg text-gray-900">{className}</h3>
-        <div className="space-y-1">
-          <div className="flex items-center text-sm text-gray-500">
-            <span className="font-medium text-black mr-2">Section:</span>
-            {section}
-          </div>
-          <div className="flex items-center text-sm text-gray-500">
-            <span className="font-medium text-black mr-2">Subject:</span>
-            {subject}
-          </div>
-        </div>
         <Button
           onClick={handleOpenClassroom}
           className="w-[100px] mt-4 bg-[#0A192F] hover:bg-[#152a47] text-white rounded"
           size="sm"
+          aria-label={`Open ${className} classroom`} // Accessibility improvement
         >
           Open
         </Button>

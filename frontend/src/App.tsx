@@ -6,7 +6,6 @@ import StudentWC from "./studentside_components/Pages/student-wc";
 import StudentDB from "./studentside_components/Pages/student-dashboard";
 import Profile from "./studentside_components/Pages/student-profile";
 import StudentCC from './studentside_components/Pages/student-classroom-content';
-
 import StudentCW from './studentside_components/Pages/classroom-classwork'
 import StudentPL from './studentside_components/Pages/student-people'
 import StudentQL from './studentside_components/Pages/student-quizzes'

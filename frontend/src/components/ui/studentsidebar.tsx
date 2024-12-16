@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LayoutDashboardIcon, School2Icon, NotebookPen, User, LogOut } from "lucide-react";
@@ -7,16 +7,18 @@ import StudentLogo from "../../assets/Logo/Student Classhive.png";
 import { JoinClassForm } from "@/studentside_components/Components/join-class";
 import LogoutConfirmation from "./Logout-Confirmation";
 
-type SidebarProps = {};
+interface SidebarProps {
+  onClassJoined: (classData: { className: string; section: string; subject: string }) => void;
+}
 
-const SidebarStudent: React.FC<SidebarProps> = () => {
+const SidebarStudent: React.FC<SidebarProps> = ({ onClassJoined }) => {
   const [activeButton, setActiveButton] = useState<string>("");
   const [isLogoutConfirmationOpen, setIsLogoutConfirmationOpen] = useState(false);
-  const navigate = useNavigate(); 
-  
+  const navigate = useNavigate();
+
   const handleButtonClick = (buttonName: string, route: string) => {
     setActiveButton(buttonName);
-    navigate(route); 
+    navigate(route);
   };
 
   const handleLogoutClick = () => {
@@ -40,79 +42,76 @@ const SidebarStudent: React.FC<SidebarProps> = () => {
       )}
     >
       {/* Logo Section */}
-      <div className="flex flex-col items-center mt-4 pb-24">
+      <div className="flex flex-col items-center mt-4 pb-8">
         <img src={StudentLogo} alt="Logo" className="w-32 h-auto" />
+      </div>
+
+      {/* Join Class Form */}
+      <div className="flex justify-center mb-5">
+        <JoinClassForm onClassJoined={onClassJoined} />
       </div>
 
       {/* Menu Section */}
       <div className="space-y-4 flex-grow">
-        <div className="flex justify-center mb-5">
-          <JoinClassForm onSubmit={(code) => {
-            console.log("Joining class with code:", code);
-          }} />
-        </div>
+        {/* Dashboard */}
+        <button
+          className={cn(
+            "flex items-center p-2 rounded-lg",
+            activeButton === "dashboard"
+              ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
+              : "text-white",
+            "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
+          )}
+          onClick={() => handleButtonClick("dashboard", "/dashboard")}
+        >
+          <LayoutDashboardIcon className="mr-3 h-5 w-5" />
+          Dashboard
+        </button>
 
-        <div className="flex flex-col space-y-2">
-          {/* Dashboard */}
-          <button
-            className={cn(
-              "flex items-center p-2 rounded-lg",
-              activeButton === "dashboard"
-                ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-                : "text-white",
-              "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-            )}
-            onClick={() => handleButtonClick("dashboard", "/dashboard")}
-          >
-            <LayoutDashboardIcon className="mr-3 h-5 w-5" />
-            Dashboard
-          </button>
+        {/* Classroom */}
+        <button
+          className={cn(
+            "flex items-center p-2 rounded-lg",
+            activeButton === "classroom"
+              ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
+              : "text-white",
+            "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
+          )}
+          onClick={() => handleButtonClick("classroom", "/classroom")}
+        >
+          <School2Icon className="mr-3 h-5 w-5" />
+          Classroom
+        </button>
 
-          {/* Classroom */}
-          <button
-            className={cn(
-              "flex items-center p-2 rounded-lg",
-              activeButton === "classroom"
-                ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-                : "text-white",
-              "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-            )}
-            onClick={() => handleButtonClick("classroom", "/classroom")}
-          >
-            <School2Icon className="mr-3 h-5 w-5" />
-            Classroom
-          </button>
+        {/* Quizzes */}
+        <button
+          className={cn(
+            "flex items-center p-2 rounded-lg",
+            activeButton === "quizzes"
+              ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
+              : "text-white",
+            "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
+          )}
+          onClick={() => handleButtonClick("quizzes", "/quizzes")}
+        >
+          <NotebookPen className="mr-3 h-5 w-5" />
+          Quizzes
+        </button>
 
-          {/* Quizzes */}
-          <button
-            className={cn(
-              "flex items-center p-2 rounded-lg",
-              activeButton === "quizzes"
-                ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-                : "text-white",
-              "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-            )}
-            onClick={() => handleButtonClick("quizzes", "/quizzes")}
-          >
-            <NotebookPen className="mr-3 h-5 w-5" />
-            Quizzes
-          </button>
-
-          {/* Profile */}
-          <button
-            className={cn(
-              "flex items-center p-2 rounded-lg",
-              activeButton === "profile"
-                ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-                : "text-white",
-              "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-            )}
-            onClick={() => handleButtonClick("profile", "/profile")}
-          >
-            <User className="mr-3 h-5 w-5" />
-            Profile
-          </button>
-        </div>
+        {/* Profile */}
+        <button
+          className={cn(
+            "flex items-center p-2 rounded-lg",
+            activeButton === "profile"
+              ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
+              : "text-white",
+            "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
+          )}
+          onClick={() => handleButtonClick("profile", "/profile")}
+        >
+          <User className="mr-3 h-5 w-5" />
+          Profile
+        </button>
       </div>
 
       {/* Logout Section */}
