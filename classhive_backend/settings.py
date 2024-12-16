@@ -46,9 +46,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173'
 ]
 
-
-
-
 CORS_ALLOW_HEADERS = [
     'Content-Type',
     'Authorization',  # If you're using Authorization header (for JWT later)

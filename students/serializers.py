@@ -1,8 +1,8 @@
 # students/serializers.py
-from django.db.models import Q
 from rest_framework import serializers
 
 from accounts.models import CustomUser
+from quizzes.serializers import QuizSerializer
 from .models import StudentClasses
 from teachers.models import Classroom
 
@@ -46,7 +46,7 @@ class StudentClassesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentClasses
-        fields = ['id', 'classroom', 'join_date', 'last_active_date', 'quizzes']
+        fields = ['id', 'classroom', 'quizzes']
 
     def get_classroom(self, obj):
         # Provide necessary fields about the classroom
@@ -56,3 +56,10 @@ class StudentClassesSerializer(serializers.ModelSerializer):
             'subject': obj.classroom.subject,
             'teacher': f"{obj.classroom.teacher.first_name} {obj.classroom.teacher.last_name}"
         }
+
+    def get_quizzes(self, obj):
+        # Get all quizzes related to the classroom of the student
+        quizzes = obj.classroom.quizzes.all()  # This uses the reverse relationship 'quizzes'
+
+        # Serialize the quizzes using QuizSerializer
+        return QuizSerializer(quizzes, many=True).data

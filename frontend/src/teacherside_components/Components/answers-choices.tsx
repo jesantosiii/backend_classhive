@@ -39,7 +39,7 @@ export function AnswerChoices({
       } else if (questionType === "identification") {
         setAnswers([{ id: "answer", text: "", isCorrect: true }]);
       } else {
-        setAnswers([]);
+        setAnswers([]); // Clear answers for other question types
       }
       setCurrentType(questionType); // Update the current type after reset
     }
@@ -70,7 +70,7 @@ export function AnswerChoices({
             ? { ...answer, isCorrect: !answer.isCorrect }
             : answer;
         } else {
-          return { ...answer, isCorrect: answer.id === id };
+          return { ...answer, isCorrect: answer.id === id }; // Only one correct answer for MC
         }
       })
     );
@@ -122,13 +122,8 @@ export function AnswerChoices({
     <div className="space-y-2">
       {answers.map((answer) => (
         <div key={answer.id} className="flex items-center gap-2">
-          {multipleAnswers ? (
-            <Checkbox
-              checked={answer.isCorrect}
-              onCheckedChange={() => toggleCorrect(answer.id)}
-              className="h-5 w-5"
-            />
-          ) : (
+          {/* For single answer questions, use RadioGroup instead of Checkbox */}
+          {!multipleAnswers && (
             <RadioGroup
               value={answers.find((a) => a.isCorrect)?.id || ""}
               onValueChange={(id) =>
@@ -143,6 +138,16 @@ export function AnswerChoices({
               <RadioGroupItem value={answer.id} />
             </RadioGroup>
           )}
+
+          {/* For multiple answer questions, use Checkbox */}
+          {multipleAnswers && (
+            <Checkbox
+              checked={answer.isCorrect}
+              onCheckedChange={() => toggleCorrect(answer.id)}
+              className="h-5 w-5"
+            />
+          )}
+
           <Input
             value={answer.text}
             onChange={(e) => updateAnswer(answer.id, e.target.value)}

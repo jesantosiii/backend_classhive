@@ -1,25 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock, CheckCircle2, CircleDot, Type, Trash2 } from "lucide-react";
 import { AnswerChoices } from "../../teacherside_components/Components/answers-choices";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Logo from "../../assets/Logo/Classhive L.png"
-import ClassHive from "../../assets/ClasshiveLP.png"
+import Logo from "../../assets/Logo/Classhive L.png";
+import ClassHive from "../../assets/ClasshiveLP.png";
 
 interface Answer {
   id: string;
@@ -30,52 +22,91 @@ interface Answer {
 interface Question {
   type: "multiple" | "truefalse" | "identification";
   points: number;
-  required: boolean;
-  multipleAnswers: boolean;
   content: string;
+  description: string; // Added description for the question
   answers: Answer[];
 }
 
 const QuizCreator: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [timeLimit, setTimeLimit] = useState<number>(0);
-  const [randomizeOrder, setRandomizeOrder] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [date, setDate] = useState<Date>();
   const [quizName, setQuizName] = useState("");
-  const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
-  const [time, setTime] = useState("");
-  const [timePeriod, setTimePeriod] = useState("am");
-  const [showInstructions, setShowInstructions] = useState<boolean>(false); // New State
-  const [instructions, setInstructions] = useState<string>(""); // Instructions Field State
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
-  const handlePublish = () => {
-    const quizData = {
-      name: quizName,
-      subject,
-      dateFrom: dateFrom ? format(dateFrom, "yyyy-MM-dd") : null,
-      dateTo: dateTo ? format(dateTo, "yyyy-MM-dd") : null,
-      time: `${time} ${timePeriod.toUpperCase()}`,
+  const [isActive, setIsActive] = useState<boolean>(true); // For 'is_active' toggle
+  const [classrooms, setClassrooms] = useState<string[]>([]); // State to store classrooms
+  const [classroom, setClassroom] = useState<string>(""); // Selected classroom
+
+  useEffect(() => {
+    // Fetch classrooms from API when component mounts
+    const fetchClassrooms = async () => {
+      try {
+        const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
+        const response = await axios.get("http://127.0.0.1:8000/teachers/classrooms/", {
+          headers: {
+            Authorization: `Bearer ${tokens.access}`, // Use access token
+          },
+        });
+        setClassrooms(response.data); // Assume response contains a list of classes
+      } catch (error: any) {
+        console.error("Error fetching classrooms:", error.response?.data);
+        alert("Failed to fetch classrooms. Please try again.");
+      }
     };
 
-    if (!quizName || !subject || !date || !time) {
-      alert("Please fill out all fields.");
+    fetchClassrooms();
+  }, []);
+
+  const handlePublish = async () => {
+    const userDetails = Cookies.get("userDetails");
+    const user = userDetails ? JSON.parse(userDetails) : null;
+
+    if (!user) {
+      alert("User details not found in cookies.");
       return;
     }
 
-    console.log("Publishing quiz:", quizData);
-    // Add API logic to save or publish the quiz
+    const quizData = {
+      name: quizName,
+      description,
+      start_date: dateFrom ? format(dateFrom, "yyyy-MM-dd") : null,
+      end_date: dateTo ? format(dateTo, "yyyy-MM-dd") : null,
+      timer_duration: timeLimit,
+      created_by: user.id,
+      classroom: classroom, // Dynamically set classroom
+      is_active: isActive,
+      questions: questions.map((q) => ({
+        question_type: q.type === "multiple" ? "MC" : q.type === "truefalse" ? "TF" : "ID",
+        content: q.content,
+        description: q.description, // Added description here
+        answers: q.answers.map((a) => ({ text: a.text, is_correct: a.isCorrect })),
+      })),
+    };
+
+    try {
+      const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
+      const response = await axios.post("http://127.0.0.1:8000/quizzes/api/quizzes/", quizData, {
+        headers: {
+          Authorization: `Bearer ${tokens?.access}`,
+        },
+      });
+      alert("Quiz published successfully!");
+    } catch (error) {
+      console.error("Error publishing quiz:", error);
+      alert("Failed to publish quiz.");
+    }
   };
+
+
 
   const addQuestion = () => {
     const newQuestion: Question = {
       type: "multiple",
       points: 0,
-      required: false,
-      multipleAnswers: false,
       content: "",
+      description: "", // Initialize description for each question
       answers: [],
     };
     setQuestions([...questions, newQuestion]);
@@ -102,66 +133,35 @@ const QuizCreator: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
               <div className="p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <Select
-                    value={randomizeOrder ? "random" : "current"}
-                    onValueChange={(value) =>
-                      setRandomizeOrder(value === "random")
-                    }
-                  >
-                    <SelectTrigger className="w-[240px]">
-                      <SelectValue placeholder="Keep Choices in current order" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="current">
-                        Keep Choices in current order
-                      </SelectItem>
-                      <SelectItem value="random">Randomize Choices</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <div className="flex items-center space-x-2">
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        value={timeLimit}
-                        onChange={(e) => setTimeLimit(Number(e.target.value))}
-                        className="w-24 pr-12"
-                        min={0}
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-                        Mins
-                      </span>
-                    </div>
-                    <Clock className="w-5 h-5 text-gray-500" />
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={timeLimit}
+                      onChange={(e) => setTimeLimit(Number(e.target.value))}
+                      className="w-24 pr-12"
+                      min={0}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">Mins</span>
                   </div>
+                  <Clock className="w-5 h-5 text-gray-500" />
                 </div>
-
                 <div className="flex items-center space-x-3">
                   <Button className="bg-[#F6F6F6] shadow-black">Preview</Button>
-                  <Button
-                    className="bg-[#031C30] text-white"
-                    onClick={() => setModalOpen(true)}
-                  >
+                  <Button className="bg-[#031C30] text-white" onClick={() => setModalOpen(true)}>
                     Publish
                   </Button>
                 </div>
               </div>
-              
             </div>
 
             {questions.map((question, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4"
-              >
+              <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <Select
                         value={question.type}
-                        onValueChange={(type) =>
-                          updateQuestion(index, { type: type as Question["type"] })
-                        }
+                        onValueChange={(type) => updateQuestion(index, { type: type as Question["type"] })}
                       >
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select question type" />
@@ -187,17 +187,12 @@ const QuizCreator: React.FC = () => {
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                        
-              
-                      <div className="flex items-center space-x-2">.
+
+                      <div className="flex items-center space-x-2">
                         <Input
                           type="number"
                           value={question.points}
-                          onChange={(e) =>
-                            updateQuestion(index, {
-                              points: Number(e.target.value),
-                            })
-                          }
+                          onChange={(e) => updateQuestion(index, { points: Number(e.target.value) })}
                           className="w-20"
                           min={0}
                         />
@@ -206,65 +201,25 @@ const QuizCreator: React.FC = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-500">Required</span>
-                        <Switch
-                          checked={question.required}
-                          onCheckedChange={(checked) =>
-                            updateQuestion(index, { required: checked })
-                          }
-                        />
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteQuestion(index)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => deleteQuestion(index)}>
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
-                    
                   </div>
 
-                  <div className="flex items-center space-x-4 mb-4">
-                    <span className="text-sm text-gray-500">Multiple Answers</span>
-                    <Switch
-                      checked={question.multipleAnswers}
-                      onCheckedChange={(checked) =>
-                        updateQuestion(index, { multipleAnswers: checked })
-                      }
+                  <div className="mb-4">
+                    <textarea
+                      value={question.description}
+                      onChange={(e) => updateQuestion(index, { description: e.target.value })}
+                      className="w-full min-h-[80px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter question description"
                     />
                   </div>
-                  <div className="mb-4 space-x-4 flex">
-                  <h1 className="text-sm text-gray-500">Add Instructions</h1>
-                  <Switch
-                    checked={showInstructions}
-                    onCheckedChange={setShowInstructions}
-                  />
-                </div>
-                  {showInstructions && (
-                <div className="mb-4">
-                  <label className="text-sm text-gray-500">Instructions</label>
-                  <textarea
-                    value={instructions}
-                    onChange={(e) => setInstructions(e.target.value)}
-                    placeholder="Enter quiz instructions (optional)"
-                    maxLength={1000}
-                    className="w-full h-24 p-2 border border-gray-200 rounded-md text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <div className="text-right text-xs text-gray-500 mt-1">
-                    {instructions.length}/1000 characters
-                  </div>
-                </div>
-              )}
-                  
 
                   <div className="mb-4">
                     <textarea
                       value={question.content}
-                      onChange={(e) =>
-                        updateQuestion(index, { content: e.target.value })
-                      }
+                      onChange={(e) => updateQuestion(index, { content: e.target.value })}
                       className="w-full min-h-[120px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter your question here..."
                     />
@@ -274,19 +229,13 @@ const QuizCreator: React.FC = () => {
                     multipleAnswers={question.multipleAnswers}
                     questionType={question.type}
                     answers={question.answers}
-                    setAnswers={(newAnswers) =>
-                      updateQuestion(index, { answers: newAnswers })
-                    }
+                    setAnswers={(newAnswers) => updateQuestion(index, { answers: newAnswers })}
                   />
-
                 </div>
               </div>
             ))}
 
-            <Button
-              onClick={addQuestion}
-              className="bg-[#031C30] text-white w-full mt-4"
-            >
+            <Button onClick={addQuestion} className="bg-[#031C30] text-white w-full mt-4">
               Add Question
             </Button>
           </div>
@@ -297,33 +246,21 @@ const QuizCreator: React.FC = () => {
             <div className="w-full max-w-[500px] bg-white rounded-lg overflow-hidden shadow-lg">
               <div className="bg-[#031C30] p-4">
                 <h2 className="text-white text-lg font-semibold flex items-center gap-2">
-                <div className="w-auto h-16">
-                      <img
-                        src={Logo}
-                        alt="Logo"
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
-                    <div className="w-auto h-5">
-                      <img
-                        src={ClassHive}
-                        alt="ClassHive Logo"
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
+                  <div className="w-auto h-16">
+                    <img src={Logo} alt="Logo" className="object-contain w-full h-full" />
+                  </div>
+                  <div className="w-auto h-5">
+                    <img src={ClassHive} alt="ClassHive Logo" className="object-contain w-full h-full" />
+                  </div>
                 </h2>
               </div>
               <div className="p-4">
                 <div className="mb-4">
                   <label className="text-sm text-gray-500">Quiz Name</label>
-                  <Input
-                    value={quizName}
-                    onChange={(e) => setQuizName(e.target.value)}
-                    placeholder="Enter quiz name"
-                  />
+                  <Input value={quizName} onChange={(e) => setQuizName(e.target.value)} placeholder="Enter quiz name" />
                 </div>
                 <div className="mb-4">
-                <label className="text-sm text-gray-500">Quiz Description</label>
+                  <label className="text-sm text-gray-500">Quiz Description</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -331,72 +268,30 @@ const QuizCreator: React.FC = () => {
                     maxLength={500}
                     className="w-full h-24 p-2 border border-black rounded-md text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <div className="text-right text-xs text-gray-500 mt-1">
-                    {description.length}/500 characters
-                  </div>
-                <div className="mb-4">
-                  <label className="text-sm text-gray-500">Subject</label>
-                  <Input
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Enter subject"
-                  />
+                  <div className="text-right text-xs text-gray-500 mt-1">{description.length}/500 characters</div>
                 </div>
-                
-                </div>
-                <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm text-gray-500">To</span>
-                <Input
-                  type="date"
-                  className="w-[150px]"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                />
-                <span className="text-sm text-gray-500">From</span>
-                <Input
-                  type="date"
-                  className="w-[150px]"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                />
-              </div>
-            </div>
 
-                <div className="flex items-center space-x-2 mb-4">
-                  <label className="text-sm text-gray-500">Time</label>
-                  <Input
-                    type="text"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    placeholder="HH:MM"
-                  />
-                  <Select
-                    value={timePeriod}
-                    onValueChange={setTimePeriod}
-                    defaultValue="am"
-                  >
-                    <SelectTrigger className="w-[70px]">
-                      <SelectValue placeholder="AM" />
+                <div className="mb-4">
+                  <label className="text-sm text-gray-500">Classroom</label>
+                  <Select value={classroom} onValueChange={(value) => setClassroom(value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select classroom" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="am">AM</SelectItem>
-                      <SelectItem value="pm">PM</SelectItem>
+                      {classrooms.map((classroomName, index) => (
+                        <SelectItem key={index} value={classroomName}>
+                          {classroomName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="flex items-center justify-end">
-                  <Button
-                    onClick={() => setModalOpen(false)}
-                    className="bg-[#031C30] text-white mr-2"
-                  >
+                  <Button onClick={() => setModalOpen(false)} className="bg-[#031C30] text-white mr-2">
                     Cancel
                   </Button>
-                  <Button
-                    className="bg-[#031C30] text-white"
-                    onClick={handlePublish}
-                  >
+                  <Button className="bg-[#031C30] text-white" onClick={handlePublish}>
                     Publish
                   </Button>
                 </div>
@@ -404,7 +299,6 @@ const QuizCreator: React.FC = () => {
             </div>
           </div>
         )}
-      
       </div>
     </div>
   );
