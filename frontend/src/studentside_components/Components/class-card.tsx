@@ -13,7 +13,7 @@ export function ClassCard({ className, classroomId }: ClassCardProps) {
   const navigate = useNavigate();
 
   const handleOpenClassroom = () => {
-    navigate(`/classroomcontent/${classroomId}`); // Navigate to the specific classroom with classroomId
+    navigate(`/classroomcontent/`); // Navigate to the specific classroom
   };
 
   return (
@@ -33,7 +33,7 @@ export function ClassCard({ className, classroomId }: ClassCardProps) {
         >
           Open
         </Button>
-      </div>
+ </div>
     </Card>
   );
 }
