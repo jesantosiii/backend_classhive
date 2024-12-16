@@ -14,6 +14,7 @@ import Logo from "../../assets/Logo/Classhive L.png";
 import ClassHive from "../../assets/ClasshiveLP.png";
 import { Switch } from "@/components/ui/switch"; // Import Switch
 import { getTokens, getUser } from "../../../config.ts";
+import { useNavigate } from 'react-router-dom';
 
 
 interface Answer {
@@ -42,7 +43,7 @@ const QuizCreator: React.FC = () => {
   const [isActive, setIsActive] = useState<boolean>(true); // For 'is_active' toggle
   const [classrooms, setClassrooms] = useState<string[]>([]); // State to store classrooms
   const [classroom, setClassroom] = useState<string>(""); // Selected classroom
-
+const navigate = useNavigate();
   useEffect(() => {
     // Fetch classrooms from API when component mounts
     const fetchClassrooms = async () => {
@@ -106,6 +107,7 @@ const QuizCreator: React.FC = () => {
       },
     });
     alert("Quiz published successfully!");
+    navigate('/teacher/Wc');
   } catch (error) {
     console.error("Error publishing quiz:", error);
     alert("Failed to publish quiz. Please check the console for more details.");
