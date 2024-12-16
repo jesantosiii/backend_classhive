@@ -59,3 +59,4 @@ admin.site.register(Question, QuestionWithAnswerAdmin)
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(StudentResponse, StudentResponseAdmin)
 admin.site.register(QuizAttempt, QuizAttemptAdmin)
+

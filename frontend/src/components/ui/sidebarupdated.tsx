@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FileStack, User, FileText, NotebookPen, CirclePlus, LogOut } from 'lucide-react';
 import Logo from "../../assets/Logo/Logo.png";
-import LogoutConfirmation from "./Logout-Confirmation";
+
 
 type SidebarProps = {};
 
@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
       {/* Logo Section */}
       <div className="flex flex-col items-center mb-5">
         <img src={Logo} alt="Logo" className="mb-2" />
-        <h1 className="text-xl font-bold bg-gradient-to-r from-[#4A618A] via-[#DFF2EC] to-[#B9E5E8] text-transparent bg-clip-text">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-[#4A618A] via-[#DFF2EC] to-[#B9E5E8] text-transparent bg-clip-text mb-10">
           CLASSHIVE
         </h1>
       </div>
@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <div className="flex justify-center">
         <Button
             variant="ghost"
-            className="w-32 h-11 bg-[#496089] rounded-xl"
+            className="w-32 h-11 bg-[#496089] rounded-xl mb-10"
             onClick={() => handleButtonClick("teacher","/teacher/quiz")} 
           >
             <CirclePlus /> Create Quiz
@@ -75,20 +75,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
             Classroom
           </button>
 
-          {/* My Library Button */}
-          <button
-            className={cn(
-              "flex items-center p-2 rounded-lg",
-              activeButton === "library"
-                ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-                : "text-white",
-              "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-            )}
-            onClick={() => handleButtonClick("library", "/teacher/library")}
-          >
-            <FileStack className="mr-3 h-5 w-5" />
-            My Library
-          </button>
 
           {/* Profile Button */}
           <button

@@ -24,11 +24,6 @@ export function PeopleList({ teacher, students }: PeopleListProps) {
       <div className="p-8">
         <div className="mb-6">
           <div className="flex items-center gap-4">
-            <img
-              src={teacher.avatarUrl || "/placeholder.svg?height=64&width=64"}
-              alt={`${teacher.name}'s avatar`}
-              className="w-16 h-16 rounded-full"
-            />
             <div>
               <h2 className="text-2xl font-bold text-gray-900">{teacher.name}</h2>
               <p className="text-sm text-gray-600">Teacher</p>
@@ -57,11 +52,6 @@ export function PeopleList({ teacher, students }: PeopleListProps) {
                 style={{ height: "64px" }}
               >
                 <div className="flex items-center gap-3 px-4">
-                  <img
-                    src={student.avatarUrl || "/placeholder.svg?height=48&width=48"}
-                    alt={`${student.name}'s avatar`}
-                    className="w-12 h-12 rounded-full"
-                  />
                   <span className="text-sm font-medium text-gray-800">{student.name}</span>
                 </div>
               </div>

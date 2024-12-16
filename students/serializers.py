@@ -63,3 +63,4 @@ class StudentClassesSerializer(serializers.ModelSerializer):
 
         # Serialize the quizzes using QuizSerializer
         return QuizSerializer(quizzes, many=True).data
+

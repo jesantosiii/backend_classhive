@@ -1,66 +1,79 @@
-import React, { useState } from "react"
-import SidebarStudent from "@/components/ui/studentsidebar"
-import { TopBarStudent } from "@/components/ui/topbar-student"
-import { ClassCard } from "../Components/class-card"
+import React, { useEffect, useState } from 'react';
+import SidebarStudent from '@/components/ui/studentsidebar';
+import { TopBarStudent } from '@/components/ui/topbar-student';
+import { ClassCard } from '../Components/class-card';
+import axios from 'axios'; // Import axios for making API calls
+import { getTokens } from "../../../config.ts"; // Import the getTokens function
+import { StudentDashboard } from "../Components/student-dashboard-component";
 
+// Create an Axios instance with default headers
+const api = axios.create({
+  baseURL: 'http://127.0.0.1:8000/students/', // Adjust the base URL as needed
+});
+
+// Set the Authorization header dynamically based on the token retrieved
+const setAuthorizationHeader = () => {
+  const tokens = getTokens();
+  if (tokens && tokens.access) {
+    api.defaults.headers['Authorization'] = `Bearer ${tokens.access}`;
+  }
+};
 
 const App: React.FC = () => {
-  const [showForm, setShowForm] = useState(false)
+  const [classes, setClasses] = useState<
+    { className: string; classroomId: string; subject: string }[]
+  >([]);
 
-  const closeForm = () => setShowForm(false)
+  const handleClassJoined = (classData: { className: string; section: string; subject: string }) => {
+    // Assuming classData contains the correct structure from the backend
+    setClasses((prevClasses) => [...prevClasses, classData]);
+  };
 
-  const handleOpenClass = () => {
-    console.log("Opening class...")
-  }
+  // Fetch classes when the component mounts
+  useEffect(() => {
+    // Set the Authorization header before making the request
+    setAuthorizationHeader();
+
+    const fetchClasses = async () => {
+      try {
+        const response = await api.get('classes/'); // Use the axios instance
+        console.log('Response:', response.data); // Log the response to check its structure
+        const fetchedClasses = response.data.map((studentClass: any) => ({
+          className: studentClass.classroom.class_name, // Adjust based on your backend response structure
+          classroomId: studentClass.classroom.id, // Get the classroom ID
+          subject: studentClass.classroom.subject, // Get the subject if needed
+        }));
+        setClasses(fetchedClasses);
+      } catch (error) {
+        console.error('Error fetching classes:', error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchClasses();
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <div className="min-h-screen flex bg-white relative">
-      <SidebarStudent />
+      {/* SidebarStudent will receive the callback */}
+      <SidebarStudent onClassJoined={handleClassJoined} />
       <div className="flex flex-col flex-1 ml-[270px]">
         <TopBarStudent />
         <main className="relative flex-1 p-6">
-
-          {/* Class Cards */}
+          <StudentDashboard/>
+          {/* Display Class Cards */}
           <div className="flex flex-wrap justify-center gap-6 mt-16">
-            <ClassCard
-              className="Mathematics"
-              section="4D-G1"
-              subject="Math"
-              onOpen={handleOpenClass}
-            />
-            <ClassCard
-              className="English"
-              section="1H-G1"
-              subject="English"
-              onOpen={handleOpenClass}
-            />
-            <ClassCard
-              className="PE"
-              section="3D-G2"
-              subject="Physical Education"
-              onOpen={handleOpenClass}
-            />
+            {classes.map((classData, index) => (
+              <ClassCard
+                key={index}
+                className={classData.className}
+                classroomId={classData.classroomId} // Pass the classroom ID to ClassCard
+              />
+            ))}
           </div>
         </main>
-
-        {showForm && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={closeForm} 
-        >
-          <div
-            className="relative bg-white rounded-2xl shadow-lg max-w-3xl w-full overflow-hidden"
-            style={{
-              marginLeft: "calc(var(--sidebar-width) + 50px)", 
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-          </div>
-        </div>
-      )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

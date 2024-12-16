@@ -11,11 +11,9 @@ export const StudentDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <WelcomeBanner 
-        studentName="Moytoy"
+      <WelcomeBanner
         date={currentDate}
       />
-      <RecentQuizzes />
     </div>
   );
 };

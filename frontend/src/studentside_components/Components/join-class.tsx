@@ -1,51 +1,59 @@
-import React, { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog'
-import { CirclePlus } from 'lucide-react'
-import JoinClassPic from '../../assets/Join Class Design.png'
-import ClassHive from '../../assets/Logo/Classhive L.png'
-import ClassHiveText from '../../assets/ClasshiveLP.png'
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { CirclePlus } from 'lucide-react';
+import axios from 'axios'; // For API requests
+import { getTokens } from "../../../config.ts";
 
 interface JoinClassFormProps {
-  onSubmit?: (code: string) => void
+  onClassJoined: (classData: { className: string;}) => void;
 }
 
-export function JoinClassForm({ onSubmit }: JoinClassFormProps) {
-  const [classCode, setClassCode] = useState('')
+export function JoinClassForm({ onClassJoined }: JoinClassFormProps) {
+  const [classCode, setClassCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit?.(classCode)
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const tokens = getTokens(); // Retrieve tokens using config
+    if (!tokens?.access) {
+      setError("Authentication token not found. Please log in again.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/students/join/",
+        { class_code: classCode },
+        { headers: { Authorization: `Bearer ${tokens.access}` } }
+      );
+
+      setError(null); // Clear any previous errors
+      const classData = {
+        className: response.data.classroom_name, // Adjust based on your API response
+      };
+      onClassJoined(classData); // Pass the class data to the parent
+    } catch (err: any) {
+      console.error("Error:", err.response || err);
+      setError(err.response?.data?.class_code || "Unable to join class. Please try again.");
+    }
+  };
 
   return (
-        <Dialog>
-        <DialogTrigger asChild>
-            <Button variant="ghost" className="w-32 h-11 bg-[#202c3c] rounded-xl text-white hover:bg-white hover:text-[#202c3c]">
-            <CirclePlus className="mr-2" /> Join Class
-            </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-md bg-white p-0">
-            <style>{`
-                .absolute.right-4.top-4 {
-                display: none !important;
-                }
-            `}</style>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="w-32 h-11 bg-sky-950 rounded-xl text-white hover:bg-white hover:text-[#202c3c]">
+          <CirclePlus className="mr-2" /> Join Class
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md bg-white p-0">
         <DialogClose asChild>
           <button className="absolute top-2 right-2 text-white bg-[#202c3c] rounded-full w-8 h-8 flex items-center justify-center hover:bg-[#3a4d6d] transition">
             ✕
           </button>
         </DialogClose>
-        
-      <div className="bg-[#202c3c] text-white py-4 flex items-center justify-center space-x-4 rounded-b-xl">
-        <div className="w-16 h-16 mb-[5px] mr-[-15px]">
-            <img src={ClassHive} alt="ClassHive logo" />
-        </div>
-        <div className="h-auto w-48 ">
-            <img src={ClassHiveText} alt="ClassHive text" />
-        </div>
-        </div>
         <div className="p-6">
           <DialogHeader>
             <DialogTitle className="text-center text-black text-2xl font-semibold">
@@ -60,24 +68,18 @@ export function JoinClassForm({ onSubmit }: JoinClassFormProps) {
               onChange={(e) => setClassCode(e.target.value)}
               className="w-full text-center text-lg text-black border border-gray-300"
             />
+            {error && <p className="text-red-500 text-center">{error}</p>}
             <div className="flex justify-center">
-              <Button 
+              <Button
                 type="submit"
                 className="w-32 bg-blue-500 rounded-xl hover:bg-blue-600 text-white"
               >
                 JOIN
               </Button>
             </div>
-            <div className="flex justify-center mt-8">
-              <img 
-                src={JoinClassPic}
-                alt="Celebration illustration"
-                className="w-full max-w-[400px]"
-              />
-            </div>
           </form>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

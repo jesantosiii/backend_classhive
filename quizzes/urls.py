@@ -16,4 +16,6 @@ urlpatterns = [
 
     # Get quiz scores for a classroom and quiz (GET request)
     path('api/classrooms/<int:classroom_id>/quizzes/<int:quiz_id>/scores/', views.get_quiz_scores, name='get_quiz_scores'),
+
 ]
+

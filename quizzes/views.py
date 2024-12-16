@@ -18,6 +18,7 @@ def create_quiz(request):
     if not classroom_id:
         return Response({"detail": "Classroom ID is required to assign the quiz."}, status=status.HTTP_400_BAD_REQUEST)
 
+
     classroom = get_object_or_404(Classroom, pk=classroom_id)
 
     # Create the quiz first

@@ -112,3 +112,4 @@ class QuizAttempt(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.quiz.name} Attempt ({self.get_status_display()})"
+

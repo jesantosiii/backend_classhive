@@ -11,7 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { MoreHorizontal } from 'lucide-react'
+import { Eye } from 'lucide-react'
+import {useNavigate} from "react-router-dom";
 
 interface Quiz {
   quizCode: string
@@ -42,6 +43,11 @@ const initialQuizzes: Quiz[] = [
 ]
 
 const QuizReport = () => {
+  const navigate = useNavigate();
+    const handleViewClick = () => {
+    navigate("/teacher/classroomreport");
+  };
+
   const [quizzes] = useState<Quiz[]>(initialQuizzes)
   const [searchQuizName, setSearchQuizName] = useState("")
   const [searchSection, setSearchSection] = useState("")
@@ -53,7 +59,7 @@ const QuizReport = () => {
     const matchesSection = quiz.section.toLowerCase().includes(searchSection.toLowerCase());
     const matchesDate = (!dateFrom || new Date(quiz.dateCreated) >= new Date(dateFrom)) &&
                         (!dateTo || new Date(quiz.dateCreated) <= new Date(dateTo));
-    
+
     return matchesQuizName && matchesSection && matchesDate;
   });
 
@@ -73,6 +79,7 @@ const QuizReport = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+
   };
 
   return (
@@ -110,8 +117,8 @@ const QuizReport = () => {
                 />
               </div>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="bg-[#031C30] text-white hover:bg-[#042a47]"
               onClick={downloadCSV}
             >
@@ -120,7 +127,7 @@ const QuizReport = () => {
           </div>
         </div>
 
- <Table>
+        <Table>
           <TableHeader>
             <TableRow className="hover:bg-gray-100">
               <TableHead className="font-semibold">Quiz Code</TableHead>
@@ -132,7 +139,7 @@ const QuizReport = () => {
           </TableHeader>
           <TableBody>
             {filteredQuizzes.map((quiz, index) => (
-              <TableRow 
+              <TableRow
                 key={quiz.quizCode}
                 className={index % 2 === 0 ? "bg-blue-50" : "bg-white"} // Alternating background colors
               >
@@ -141,8 +148,8 @@ const QuizReport = () => {
                 <TableCell>{quiz.section}</TableCell>
                 <TableCell>{quiz.dateCreated}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl">
-                    <MoreHorizontal className="h-4 w-4" />
+                  <Button onClick={handleViewClick} variant="ghost" size="icon" className="h-8 w-8 rounded-xl">
+                    <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>

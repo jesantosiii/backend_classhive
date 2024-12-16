@@ -1,90 +1,85 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/ui/sidebarupdated";
 import { TopBar } from "@/components/ui/topbar";
-import { ChevronLeft } from "lucide-react";
 import { PeopleList } from "../Components/people";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { getTokens } from "../../../config.ts";
 
-const sampleData = {
-  teacher: {
-    id: "1",
-    name: "Teacher Name",
-    avatarUrl: "/placeholder.svg",
-    role: "teacher" as const,
-  },
-  students: [
-    {
-      id: "2",
-      name: "Mark June Santiago",
-      avatarUrl: "/placeholder.svg",
-      role: "student" as const,
-    },
-    {
-      id: "3",
-      name: "Ivan Paul Santiago",
-      avatarUrl: "/placeholder.svg",
-      role: "student" as const,
-    },
-    {
-      id: "4",
-      name: "Robin Miranda",
-      avatarUrl: "/placeholder.svg",
-      role: "student" as const,
-    },
-    {
-      id: "5",
-      name: "Jun Adriann Bulaon",
-      avatarUrl: "/placeholder.svg",
-      role: "student" as const,
-    },
-    {
-      id: "6",
-      name: "Juanito Santos",
-      avatarUrl: "/placeholder.svg",
-      role: "student" as const,
-    },
-    {
-      id: "7",
-      name: "Elliot Dela Cruz",
-      avatarUrl: "/placeholder.svg",
-      role: "student" as const,
-    },
-  ],
+const ClassroomPeople: React.FC = () => {
+    const { classCode } = useParams();
+    const [teacher, setTeacher] = useState(null);
+    const [students, setStudents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    useEffect(() => {
+    const fetchPeople = async () => {
+        try {
+            const tokens = getTokens();
+            if (!tokens || !tokens.access) {
+                throw new Error("Authentication token is missing. Please log in again.");
+            }
+
+            const response = await axios.get(
+                `http://127.0.0.1:8000/teachers/classrooms/${classCode}/people/`,
+                { headers: { Authorization: `Bearer ${tokens.access}` } }
+            );
+
+            const people = response.data.people;
+
+            // Combine first_name and last_name into a single name property
+            const teacher = people
+                .filter((person) => person.role === "Teacher")
+                .map((person) => ({
+                    ...person,
+                    name: `${person.first_name} ${person.last_name}`,
+                }))[0]; // Get the first teacher (if any)
+
+            const students = people
+                .filter((person) => person.role === "Student")
+                .map((person) => ({
+                    ...person,
+                    name: `${person.first_name} ${person.last_name}`,
+                }));
+
+            console.log("Teacher:", teacher);
+            console.log("Students:", students);
+
+            setTeacher(teacher || null); // Default null if not found
+            setStudents(students || []); // Default empty array if no students
+        } catch (error: any) {
+            setErrorMessage(
+                error.response?.data?.detail || "Failed to fetch people data."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchPeople();
+}, [classCode]);
+
+
+
+    if (loading) return <div>Loading people data...</div>;
+    if (errorMessage) return <div>Error: {errorMessage}</div>;
+
+    return (
+        <div className="min-h-screen flex bg-white relative">
+            <Sidebar />
+            <div className="flex flex-col flex-1 ml-[270px]">
+                <TopBar />
+                <main className="relative flex-1 p-6 bg-gray-50">
+                    {teacher && students.length > 0 ? (
+                        <PeopleList teacher={teacher} students={students} />
+                    ) : (
+                        <div>No teacher or students available.</div>
+                    )}
+                </main>
+            </div>
+        </div>
+    );
 };
 
-const App: React.FC = () => {
-  const navigate = useNavigate(); // Initialize navigate
-
-  const handleBackClick = () => {
-    // Navigate back to the ClassroomContent route
-    navigate("/teacher/classroomcontent"); // Adjust the path based on your route structure
-  };
-
-  return (
-    <div className="min-h-screen flex bg-white relative">
-      <Sidebar />
-      <div className="flex flex-col flex-1 ml-[270px]">
-        <TopBar />
-        <main className="relative flex-1 p-6 bg-gray-50">
-          <div className="mb-6">
-            <Button
-              variant="ghost"
-              className="flex items-center gap-2 text-gray-600 hover:text-white rounded hover:rounded"
-              onClick={handleBackClick} // Call handleBackClick on button click
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </Button>
-          </div>
-          <PeopleList
-            teacher={sampleData.teacher}
-            students={sampleData.students}
-          />
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+export default ClassroomPeople;
