@@ -18,9 +18,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-white relative">
       <Sidebar />
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 ml-[270px]">
         <TopBar />
-        <main className="relative flex-1 p-6 ml-[270px]">
+        <main className="relative flex-1 p-6">
           <div className="absolute top-4 right-6">
             <Button
               variant="ghost"
