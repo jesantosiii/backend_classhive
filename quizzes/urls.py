@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 
-from .views import TeacherQuestionBankView, TeacherQuizListView, QuizDetailView, QuestionListView, AnswerListView
+from .views import TeacherQuestionBankView, TeacherQuizListView, QuizDetailView
+
 
 
 urlpatterns = [
@@ -23,12 +24,9 @@ urlpatterns = [
 
     path('question-bank/', TeacherQuestionBankView.as_view(), name='teacher-question-bank'),
     path('teacher/quizzes/', TeacherQuizListView.as_view(), name='teacher-quiz-list'),
-    
-    path('quizzes/<int:id>/', QuizDetailView.as_view(), name='quiz-detail'),
 
-    path('quizzes/<int:pk>/', QuizDetailView.as_view(), name='quiz-detail'),
-    path('quizzes/<int:quiz_id>/questions/', QuestionListView.as_view(), name='question-list'),
-    path('questions/<int:question_id>/answers/', AnswerListView.as_view(), name='answer-list'),
+
+    path('quizzes/<int:pk>/', QuizDetailView.as_view(), name='quiz-detail')
 
 ]
 

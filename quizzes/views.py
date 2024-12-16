@@ -13,8 +13,9 @@ from teachers.models import Classroom
 
 from .models import Quiz, StudentResponse, QuizAttempt, Question, Answer
 
-from .serializers import QuizSerializer, StudentResponseSerializer, QuestionSerializer, AnswerSerializer, \
-    QuizListSerializer, QuizAttemptSerializer
+from .serializers import QuizSerializer, StudentResponseSerializer, QuestionSerializer, \
+    QuizListSerializer, QuizAttemptSerializer, QuizDetailSerializer
+
 
 
 # Quiz creation (POST request)
@@ -162,11 +163,6 @@ class TeacherQuestionBankView(ListAPIView):
 
 
 
-class QuizDetailSerializer:
-    pass
-
-
-
 class TeacherQuizListView(ListAPIView):
     """
     API view to fetch all quizzes created by the authenticated teacher.
@@ -181,23 +177,11 @@ class TeacherQuizListView(ListAPIView):
         user = self.request.user
         return Quiz.objects.filter(created_by=user)
 
-
-class QuizDetailView(generics.RetrieveAPIView):
+class QuizDetailView(RetrieveAPIView):
+    """
+    API view to fetch a specific quiz with its questions and answers.
+    """
     queryset = Quiz.objects.all()
-    serializer_class = QuizSerializer
-    lookup_field = 'pk'  # Using 'pk' to fetch quiz by ID
-
-class QuestionListView(generics.ListAPIView):
-    serializer_class = QuestionSerializer
-
-    def get_queryset(self):
-        quiz_id = self.kwargs['quiz_id']  # Extract quiz ID from URL
-        return Question.objects.filter(quiz_id=quiz_id)
-
-class AnswerListView(generics.ListAPIView):
-    serializer_class = AnswerSerializer
-
-    def get_queryset(self):
-        question_id = self.kwargs['question_id']  # Extract question ID from URL
-        return Answer.objects.filter(question_id=question_id)
+    serializer_class = QuizDetailSerializer
+    permission_classes = [IsAuthenticated]
 
