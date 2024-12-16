@@ -69,21 +69,7 @@ const SidebarStudent: React.FC<SidebarProps> = ({ onClassJoined }) => {
           <School2Icon className="mr-3 h-5 w-5" />
           Classroom
         </button>
-
-        {/* Quizzes */}
-        <button
-          className={cn(
-            "flex items-center p-2 w-[200px] rounded-lg",
-            activeButton === "quizzes"
-              ? "bg-[#f4f5f7] text-[#0F172A] rounded-full"
-              : "text-white",
-            "hover:bg-[#f4f5f7] hover:text-[#0F172A] hover:rounded-full"
-          )}
-          onClick={() => handleButtonClick("quizzes", "/quizzes")}
-        >
-          <NotebookPen className="mr-3 h-5 w-5" />
-          Quizzes
-        </button>
+        
 
         {/* Profile */}
         <button
