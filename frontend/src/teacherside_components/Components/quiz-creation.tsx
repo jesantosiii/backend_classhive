@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import Logo from "../../assets/Logo/Classhive L.png";
 import ClassHive from "../../assets/ClasshiveLP.png";
+import { Switch } from "@/components/ui/switch"; // Import Switch
 
 interface Answer {
   id: string;
@@ -30,6 +31,7 @@ interface Question {
 const QuizCreator: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [timeLimit, setTimeLimit] = useState<number>(0);
+  const [showInstructions, setShowInstructions] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [quizName, setQuizName] = useState("");
   const [description, setDescription] = useState("");
@@ -160,28 +162,28 @@ const QuizCreator: React.FC = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <Select
-                        value={question.type}
-                        onValueChange={(type) => updateQuestion(index, { type: type as Question["type"] })}
+                          value={question.type}
+                          onValueChange={(type) => updateQuestion(index, {type: type as Question["type"]})}
                       >
                         <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select question type" />
+                          <SelectValue placeholder="Select question type"/>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="multiple">
                             <span className="flex items-center">
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                              <CheckCircle2 className="w-4 h-4 mr-2"/>
                               Multiple Choice
                             </span>
                           </SelectItem>
                           <SelectItem value="truefalse">
                             <span className="flex items-center">
-                              <CircleDot className="w-4 h-4 mr-2" />
+                              <CircleDot className="w-4 h-4 mr-2"/>
                               True or False
                             </span>
                           </SelectItem>
                           <SelectItem value="identification">
                             <span className="flex items-center">
-                              <Type className="w-4 h-4 mr-2" />
+                              <Type className="w-4 h-4 mr-2"/>
                               Identification
                             </span>
                           </SelectItem>
@@ -190,11 +192,11 @@ const QuizCreator: React.FC = () => {
 
                       <div className="flex items-center space-x-2">
                         <Input
-                          type="number"
-                          value={question.points}
-                          onChange={(e) => updateQuestion(index, { points: Number(e.target.value) })}
-                          className="w-20"
-                          min={0}
+                            type="number"
+                            value={question.points}
+                            onChange={(e) => updateQuestion(index, {points: Number(e.target.value)})}
+                            className="w-20"
+                            min={0}
                         />
                         <span className="text-sm text-gray-500">Points</span>
                       </div>
@@ -202,34 +204,47 @@ const QuizCreator: React.FC = () => {
 
                     <div className="flex items-center space-x-4">
                       <Button variant="ghost" size="icon" onClick={() => deleteQuestion(index)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                        <Trash2 className="w-4 h-4 text-red-500"/>
                       </Button>
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <textarea
-                      value={question.description}
-                      onChange={(e) => updateQuestion(index, { description: e.target.value })}
-                      className="w-full min-h-[80px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter question description"
-                    />
+                    {/* Toggle switch to show/hide the text area */}
+                    <div className="flex items-center mb-2">
+                      <Switch
+                          checked={showInstructions}
+                          onCheckedChange={setShowInstructions}
+                          className="mr-2"
+                      />
+                      <span className="text-gray-700">Add Instructions</span>
+                    </div>
+
+                    {/* Conditionally render the text area */}
+                    {showInstructions && (
+                        <textarea
+                            value={description} // Bind to the description state
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full min-h-[80px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter quiz instructions here..."
+                        />
+                    )}
                   </div>
 
                   <div className="mb-4">
                     <textarea
-                      value={question.content}
-                      onChange={(e) => updateQuestion(index, { content: e.target.value })}
-                      className="w-full min-h-[120px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter your question here..."
+                        value={question.content}
+                        onChange={(e) => updateQuestion(index, {content: e.target.value})}
+                        className="w-full min-h-[120px] p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter your question here..."
                     />
                   </div>
 
                   <AnswerChoices
-                    multipleAnswers={question.multipleAnswers}
-                    questionType={question.type}
-                    answers={question.answers}
-                    setAnswers={(newAnswers) => updateQuestion(index, { answers: newAnswers })}
+                      multipleAnswers={question.multipleAnswers}
+                      questionType={question.type}
+                      answers={question.answers}
+                      setAnswers={(newAnswers) => updateQuestion(index, {answers: newAnswers})}
                   />
                 </div>
               </div>
@@ -242,12 +257,12 @@ const QuizCreator: React.FC = () => {
         </main>
 
         {modalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-full max-w-[500px] bg-white rounded-lg overflow-hidden shadow-lg">
-              <div className="bg-[#031C30] p-4">
-                <h2 className="text-white text-lg font-semibold flex items-center gap-2">
-                  <div className="w-auto h-16">
-                    <img src={Logo} alt="Logo" className="object-contain w-full h-full" />
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="w-full max-w-[500px] bg-white rounded-lg overflow-hidden shadow-lg">
+                <div className="bg-[#031C30] p-4">
+                  <h2 className="text-white text-lg font-semibold flex items-center gap-2">
+                    <div className="w-auto h-16">
+                      <img src={Logo} alt="Logo" className="object-contain w-full h-full" />
                   </div>
                   <div className="w-auto h-5">
                     <img src={ClassHive} alt="ClassHive Logo" className="object-contain w-full h-full" />
@@ -257,36 +272,54 @@ const QuizCreator: React.FC = () => {
               <div className="p-4">
                 <div className="mb-4">
                   <label className="text-sm text-gray-500">Quiz Name</label>
-                  <Input value={quizName} onChange={(e) => setQuizName(e.target.value)} placeholder="Enter quiz name" />
+                  <Input value={quizName} onChange={(e) => setQuizName(e.target.value)} placeholder="Enter quiz name"/>
                 </div>
                 <div className="mb-4">
                   <label className="text-sm text-gray-500">Quiz Description</label>
                   <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Enter quiz description (max 500 characters)"
-                    maxLength={500}
-                    className="w-full h-24 p-2 border border-black rounded-md text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Enter quiz description (max 500 characters)"
+                      maxLength={500}
+                      className="w-full h-24 p-2 border border-black rounded-md text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <div className="text-right text-xs text-gray-500 mt-1">{description.length}/500 characters</div>
                 </div>
+
 
                 <div className="mb-4">
                   <label className="text-sm text-gray-500">Classroom</label>
                   <Select value={classroom} onValueChange={(value) => setClassroom(value)}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select classroom" />
+                      <SelectValue placeholder="Select classroom"/>
                     </SelectTrigger>
                     <SelectContent>
                       {classrooms.map((classroomName, index) => (
-                        <SelectItem key={index} value={classroomName}>
-                          {classroomName}
-                        </SelectItem>
+                          <SelectItem key={index} value={classroomName}>
+                            {classroomName}
+                          </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-
+                <div className="mb-4">
+                  <label className="text-sm text-gray-500">Start Date</label>
+                  <Input
+                      type="date"
+                      className="w-full"
+                      value={dateFrom ? format(dateFrom, "yyyy-MM-dd") : ""}
+                      onChange={(e) => setDateFrom(e.target.value ? new Date(e.target.value) : undefined)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="text-sm text-gray-500">End Date</label>
+                  <Input
+                      type="date"
+                      className="w-full"
+                      value={dateTo ? format(dateTo, "yyyy-MM-dd") : ""}
+                      onChange={(e) => setDateTo(e.target.value ? new Date(e.target.value) : undefined)}
+                  />
+                </div>
                 <div className="flex items-center justify-end">
                   <Button onClick={() => setModalOpen(false)} className="bg-[#031C30] text-white mr-2">
                     Cancel
