@@ -5,6 +5,7 @@ import { TopBarStudent } from "@/components/ui/topbar-student";
 import { QuizCard } from "@/studentside_components/Components/classwork-card";
 import { ClassHeader } from "@/teacherside_components/Components/class-header.tsx";
 import { getTokens } from "../../../config.ts";
+import { useNavigate } from "react-router-dom";
 
 interface Quiz {
   id: number;
@@ -14,7 +15,7 @@ interface Quiz {
 
 const App: React.FC = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchQuizzes = async () => {
       const tokens = getTokens();
@@ -42,8 +43,9 @@ const App: React.FC = () => {
 
   const handleStartQuiz = (quizId: number) => {
     console.log("Starting quiz with ID:", quizId);
-    // Navigate to quiz-taking page or perform another action
+    navigate(`/taking/${quizId}`);
   };
+
 
   return (
     <div className="min-h-screen flex bg-white relative">

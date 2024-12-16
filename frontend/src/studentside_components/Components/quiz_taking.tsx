@@ -150,7 +150,7 @@ const QuizInterface = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/quizzes/submit/${quiz.id}/`,
+        `http://127.0.0.1:8000/quizzes/api/quizzes/1/submit-answers/`,
         { responses },
         {
           headers: {
