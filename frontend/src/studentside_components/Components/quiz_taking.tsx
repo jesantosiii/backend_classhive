@@ -145,7 +145,10 @@ const QuizInterface = () => {
     const responses = quiz.questions.map((q) => ({
       question: q.id,
       selected_option: typeof q.selectedAnswer === "number" ? q.selectedAnswer : null,
-      text_response: typeof q.selectedAnswer === "string" ? q.selectedAnswer : null,
+      text_response:
+        typeof q.selectedAnswer === "string" && q.selectedAnswer?.trim()
+          ? q.selectedAnswer.trim()
+          : null,
     }));
 
     try {
@@ -175,7 +178,11 @@ const QuizInterface = () => {
 
     const allQuestionsAnswered = quiz.questions.every((q) => {
       if (q.question_type === "ID") {
-        return typeof q.selectedAnswer === "string" && q.selectedAnswer.trim().length > 0;
+        return (
+          typeof q.selectedAnswer === "string" &&
+          q.selectedAnswer?.trim() &&
+          q.selectedAnswer.trim().length > 0
+        );
       } else {
         return q.selectedAnswer !== undefined;
       }
@@ -196,7 +203,9 @@ const QuizInterface = () => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const timerPercentage = (timeLeft / (quiz?.timer_duration || 45 * 60)) * 100;
@@ -213,7 +222,9 @@ const QuizInterface = () => {
 
           {quiz?.questions.map((q, idx) => (
             <div key={q.id} className="mb-6">
-              <h3>Question {idx + 1}: {q.content}</h3>
+              <h3>
+                Question {idx + 1}: {q.content}
+              </h3>
               {q.question_type === "ID" ? (
                 <Input
                   type="text"
