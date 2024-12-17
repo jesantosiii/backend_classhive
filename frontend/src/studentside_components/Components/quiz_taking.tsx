@@ -52,7 +52,7 @@ const QuizInterface = () => {
     const fetchQuizDetails = async () => {
       const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
       if (!tokens?.access) {
-        setError("User is not authenticated. Please log in.");
+        setError("Authentication required. Please log in to access the quiz.");
         setLoading(false);
         return;
       }
@@ -75,7 +75,7 @@ const QuizInterface = () => {
         setTimeLeft(fetchedQuiz.timer_duration || 45 * 60);
       } catch (err: any) {
         console.error("Error fetching quiz details:", err.response?.data || err.message);
-        setError("Failed to load quiz details.");
+        setError("Unable to load the quiz at this time. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -138,7 +138,7 @@ const QuizInterface = () => {
 
     const tokens = JSON.parse(localStorage.getItem("authTokens") || "{}");
     if (!tokens?.access) {
-      setError("User is not authenticated. Please log in.");
+      setError("Authentication required. Please log in to submit your answers.");
       return;
     }
 
@@ -164,11 +164,11 @@ const QuizInterface = () => {
       );
 
       const data = response.data;
-      alert(`Quiz submitted successfully! Your score: ${data.score}/${data.total_score}`);
+      alert(`Your answers have been submitted successfully! You scored ${data.score} out of ${data.total_score}.`);
       setShowAnswers(true);
     } catch (err: any) {
       console.error("Error submitting answers:", err.response?.data || err.message);
-      alert("Failed to submit answers. Please try again.");
+      alert("There was an issue submitting your answers. Please try again.");
     }
   };
 
@@ -189,7 +189,7 @@ const QuizInterface = () => {
     });
 
     if (!allQuestionsAnswered) {
-      alert("Please answer all questions before submitting.");
+      alert("Please ensure all questions are answered before submitting.");
       return;
     }
 
@@ -210,7 +210,7 @@ const QuizInterface = () => {
 
   const timerPercentage = (timeLeft / (quiz?.timer_duration || 45 * 60)) * 100;
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading quiz details...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -247,7 +247,7 @@ const QuizInterface = () => {
           ))}
 
           <Button onClick={handleSubmit} className="bg-red-600 hover:bg-red-700">
-            Submit
+            Submit Quiz
           </Button>
         </div>
 

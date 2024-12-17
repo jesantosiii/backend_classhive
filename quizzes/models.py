@@ -62,23 +62,27 @@ class StudentResponse(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def evaluate_correctness(self):
-        if self.question.question_type == Question.MULTIPLE_CHOICE:
-            if self.selected_option and self.selected_option.is_correct:
-                self.is_correct = True
-            else:
-                self.is_correct = False
-        elif self.question.question_type == Question.IDENTIFICATION:
-            # Trim whitespace and check case-insensitive match
-            if self.text_response and self.text_response.strip().lower() == self.question.correct_answer.strip().lower():
-                self.is_correct = True
-            else:
-                self.is_correct = False
-        elif self.question.question_type == Question.TRUE_FALSE:
-            if self.selected_option and self.selected_option.is_correct:
-                self.is_correct = True
-            else:
-                self.is_correct = False
-        self.save()
+        def evaluate_correctness(self):
+            if self.question.question_type == Question.MULTIPLE_CHOICE:
+                if self.selected_option and self.selected_option.is_correct:
+                    self.is_correct = True
+                else:
+                    self.is_correct = False
+            elif self.question.question_type == Question.IDENTIFICATION:
+                # Check if correct_answer is not None before calling strip
+                if self.text_response and self.question.correct_answer:
+                    if self.text_response.strip().lower() == self.question.correct_answer.strip().lower():
+                        self.is_correct = True
+                    else:
+                        self.is_correct = False
+                else:
+                    self.is_correct = False  # Handle case where correct_answer is None
+            elif self.question.question_type == Question.TRUE_FALSE:
+                if self.selected_option and self.selected_option.is_correct:
+                    self.is_correct = True
+                else:
+                    self.is_correct = False
+            self.save()
 
     def get_score(self):
         return self.question.points if self.is_correct else 0
